@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -716,6 +717,96 @@ public class DrawContext implements Closeable {
             tcSTTxt.setDeltaY(measureBody.offset);
         } else {
             tcSTTxt.setDeltaX(measureBody.offset);
+        }
+        txtObj.addTextCode(tcSTTxt);
+        // 加入容器
+        container.addPageBlock(txtObj);
+        return this;
+    }
+
+    public DrawContext fillText(String text, double x, double y, List<Double> deltaX, List<Double> deltaY) throws IOException {
+        if (text == null || text.trim().isEmpty()) {
+            return this;
+        }
+
+        FontSetting fontSetting = null;
+        if (state.font != null) {
+            fontSetting = state.font;
+        } else {
+            fontSetting = new FontSetting(1d, FontName.SimSun.font());
+        }
+
+        int readDirection = state.font.getReadDirection();
+        int charDirection = state.font.getCharDirection();
+
+        Font font = fontSetting.getFont();
+        Double fontSize = state.font.getFontSize();
+
+        ST_ID id = resManager.addFont(font);
+
+        // 新建字体对象
+        TextObject txtObj = new CT_Text()
+                .setBoundary(this.boundary.clone())
+                .setFont(id.ref())
+                .setSize(fontSize)
+                .toObj(new ST_ID(maxUnitID.incrementAndGet()));
+        // 设置字体宽度
+        if (state.font.getFontWeight() != null && state.font.getFontWeight() != 400) {
+            txtObj.setWeight(Weight.getInstance(state.font.getFontWeight()));
+        }
+        // 是否斜体
+        if (state.font.isItalic()) {
+            txtObj.setItalic(true);
+        }
+        // 设置颜色
+        if (state.fillColor != null) {
+            txtObj.setFillColor(CT_Color.rgb(state.fillColor));
+        }
+        // 设置变换矩阵
+        if (state.ctm != null) {
+            txtObj.setCTM(state.ctm.clone());
+        }
+        // 设置透明度
+        if (state.globalAlpha != null && state.globalAlpha != 1) {
+            txtObj.setAlpha((int) (255 * this.state.globalAlpha));
+        }
+        // 设置阅读方向
+        if (readDirection != 0) {
+            txtObj.setReadDirection(Direction.getInstance(readDirection));
+        }
+        // 设置文字方向
+        if (charDirection != 0) {
+            txtObj.setCharDirection(Direction.getInstance(charDirection));
+        }
+        // 测量字间距
+        MeasureBody measureBody = TextMeasureTool.measureWithWith(text, fontSetting);
+
+        // 第一个字母的偏移量计算
+        double xx = x + measureBody.firstCharOffsetX;
+        double yy = y + measureBody.firstCharOffsetY;
+        switch (readDirection) {
+            case 0:
+            case 180:
+                xx += textFloatFactor(state.font.getTextAlign(), measureBody.width, readDirection);
+                break;
+            case 90:
+            case 270:
+                yy += textFloatFactor(state.font.getTextAlign(), measureBody.width, readDirection);
+                break;
+        }
+        TextCode tcSTTxt = new TextCode()
+                .setContent(text)
+                .setX(xx)
+                .setY(yy);
+
+        if (readDirection == 90 || readDirection == 270) {
+            Double[] deltaYArr = new Double[deltaY.size()];
+            deltaY.toArray(deltaYArr);
+            tcSTTxt.setDeltaY(deltaYArr);
+        } else {
+            Double[] deltaXArr = new Double[deltaX.size()];
+            deltaX.toArray(deltaXArr);
+            tcSTTxt.setDeltaX(deltaXArr);
         }
         txtObj.addTextCode(tcSTTxt);
         // 加入容器
