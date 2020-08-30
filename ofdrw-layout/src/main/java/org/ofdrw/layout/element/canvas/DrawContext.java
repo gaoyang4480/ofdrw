@@ -10,9 +10,11 @@ import org.ofdrw.core.basicType.ST_ID;
 import org.ofdrw.core.basicType.ST_RefID;
 import org.ofdrw.core.graph.pathObj.AbbreviatedData;
 import org.ofdrw.core.graph.pathObj.CT_Path;
+import org.ofdrw.core.graph.pathObj.Rule;
 import org.ofdrw.core.pageDescription.color.color.CT_Color;
 import org.ofdrw.core.pageDescription.drawParam.LineCapType;
 import org.ofdrw.core.pageDescription.drawParam.LineJoinType;
+import org.ofdrw.core.text.CT_CGTransfrom;
 import org.ofdrw.core.text.TextCode;
 import org.ofdrw.core.text.text.CT_Text;
 import org.ofdrw.core.text.text.Direction;
@@ -437,6 +439,35 @@ public class DrawContext implements Closeable {
     }
 
     /**
+     * 取消图形是否被勾边默认值
+     *
+     * @return this
+     */
+    public DrawContext nonStroke() {
+        if (this.workPathObj == null) {
+            return this;
+        }
+        workPathObj.setStroke(false);
+
+        return this;
+    }
+
+    /**
+     * 设置图形的填充规则
+     *
+     * @param rule 图形的填充规则
+     * @return this
+     */
+    public DrawContext setRule(Rule rule) {
+        if (this.workPathObj == null) {
+            return this;
+        }
+        workPathObj.setRule(rule);
+
+        return this;
+    }
+
+    /**
      * 填充已定义路径
      * <p>
      * 默认的填充颜色是黑色。
@@ -724,7 +755,7 @@ public class DrawContext implements Closeable {
         return this;
     }
 
-    public DrawContext fillText(String text, double x, double y, List<Double> deltaX, List<Double> deltaY) throws IOException {
+    public DrawContext fillText(String text, double x, double y, List<Double> deltaX, List<Double> deltaY, List<Integer> glyphs) throws IOException {
         if (text == null || text.trim().isEmpty()) {
             return this;
         }
@@ -808,6 +839,20 @@ public class DrawContext implements Closeable {
             deltaX.toArray(deltaXArr);
             tcSTTxt.setDeltaX(deltaXArr);
         }
+
+        if (glyphs != null) {
+            CT_CGTransfrom ctCgTransfrom = new CT_CGTransfrom();
+            ctCgTransfrom.setCodeCount(glyphs.size());
+            ctCgTransfrom.setCodePosition(0);
+            ctCgTransfrom.setGlyphCount(glyphs.size());
+            ST_Array glyphsArr = new ST_Array();
+            for (int i = 0; i < glyphs.size(); i++) {
+                glyphsArr.add(String.valueOf(glyphs.get(i)));
+            }
+            ctCgTransfrom.setGlyphs(glyphsArr);
+            txtObj.addCGTransform(ctCgTransfrom);
+        }
+
         txtObj.addTextCode(tcSTTxt);
         // 加入容器
         container.addPageBlock(txtObj);

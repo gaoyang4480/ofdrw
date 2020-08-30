@@ -54,7 +54,7 @@ public class CT_Dest extends OFDElement implements OFDGotoTarget {
      * @return this
      */
     public CT_Dest setPageID(ST_RefID pageId) {
-        this.setOFDEntity("PageID", pageId.toString());
+        this.addAttribute("PageID", pageId.toString());
         return this;
     }
 
@@ -65,7 +65,7 @@ public class CT_Dest extends OFDElement implements OFDGotoTarget {
      * @return 引用跳转目标页面的标识
      */
     public ST_RefID getPageID() {
-        return ST_RefID.getInstance(this.getOFDElementText("PageID"));
+        return ST_RefID.getInstance(this.attributeValue("PageID"));
     }
 
     /**
@@ -78,7 +78,7 @@ public class CT_Dest extends OFDElement implements OFDGotoTarget {
      * @return this
      */
     public CT_Dest setLeft(double left) {
-        this.setOFDEntity("Left", STBase.fmt(left));
+        this.addAttribute("Left", STBase.fmt(left));
         return this;
     }
 
@@ -91,7 +91,7 @@ public class CT_Dest extends OFDElement implements OFDGotoTarget {
      * @return 目标区域左上角 x坐标
      */
     public Double getLeft() {
-        String str = this.getOFDElementText("Left");
+        String str = this.attributeValue("Left");
         if (str == null || str.trim().length() == 0) {
             return 0D;
         }
@@ -109,7 +109,7 @@ public class CT_Dest extends OFDElement implements OFDGotoTarget {
      * @return this
      */
     public CT_Dest setRight(double right) {
-        this.setOFDEntity("Right", STBase.fmt(right));
+        this.addAttribute("Right", STBase.fmt(right));
         return this;
     }
 
@@ -122,7 +122,7 @@ public class CT_Dest extends OFDElement implements OFDGotoTarget {
      * @return 目标区域右上角 x坐标
      */
     public Double getRight() {
-        String str = this.getOFDElementText("Right");
+        String str = this.attributeValue("Right");
         if (str == null || str.trim().length() == 0) {
             return 0D;
         }
@@ -140,7 +140,7 @@ public class CT_Dest extends OFDElement implements OFDGotoTarget {
      * @return this
      */
     public CT_Dest setTop(double top) {
-        this.setOFDEntity("Top", STBase.fmt(top));
+        this.addAttribute("Top", STBase.fmt(top));
         return this;
     }
 
@@ -153,7 +153,7 @@ public class CT_Dest extends OFDElement implements OFDGotoTarget {
      * @return 目标区域左上角 x坐标
      */
     public Double getTop() {
-        String str = this.getOFDElementText("Top");
+        String str = this.attributeValue("Top");
         if (str == null || str.trim().length() == 0) {
             return 0D;
         }
@@ -170,7 +170,7 @@ public class CT_Dest extends OFDElement implements OFDGotoTarget {
      * @return this
      */
     public CT_Dest setBottom(double bottom) {
-        this.setOFDEntity("Bottom", STBase.fmt(bottom));
+        this.addAttribute("Bottom", STBase.fmt(bottom));
         return this;
     }
 
@@ -183,7 +183,7 @@ public class CT_Dest extends OFDElement implements OFDGotoTarget {
      * @return 目标区域右下角 y坐标
      */
     public Double getBottom() {
-        String str = this.getOFDElementText("Bottom");
+        String str = this.attributeValue("Bottom");
         if (str == null || str.trim().length() == 0) {
             return 0D;
         }
@@ -201,7 +201,7 @@ public class CT_Dest extends OFDElement implements OFDGotoTarget {
      * @return this
      */
     public CT_Dest setZoom(double zoom) {
-        this.setOFDEntity("Zoom", STBase.fmt(zoom));
+        this.addAttribute("Zoom", STBase.fmt(zoom));
         return this;
     }
 
@@ -214,7 +214,7 @@ public class CT_Dest extends OFDElement implements OFDGotoTarget {
      * @return 目标区域页面缩放比例
      */
     public Double getZoom() {
-        String str = this.getOFDElementText("Zoom");
+        String str = this.attributeValue("Zoom");
         if (str == null || str.trim().length() == 0) {
             return 0D;
         }

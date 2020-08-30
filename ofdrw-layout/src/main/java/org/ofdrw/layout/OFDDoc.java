@@ -57,15 +57,15 @@ public class OFDDoc implements Closeable {
      * <p>
      * 仅在修改的模式有效
      */
-    private OFDReader reader;
+    protected OFDReader reader;
     /**
      * OFD 打包
      */
-    private OFDDir ofdDir;
+    protected OFDDir ofdDir;
     /**
      * 打包后OFD文档存放路径
      */
-    private Path outPath;
+    protected Path outPath;
     /**
      * 当前文档中所有对象使用标识的最大值。
      * 初始值为 0。MaxUnitID主要用于文档编辑，
@@ -73,29 +73,29 @@ public class OFDDoc implements Closeable {
      * 新的标识符，新标识符取值宜为 MaxUnitID + 1，
      * 同时需要修改此 MaxUnitID值。
      */
-    private AtomicInteger MaxUnitID = new AtomicInteger(0);
+    protected AtomicInteger MaxUnitID = new AtomicInteger(0);
 
     /**
      * 外部资源管理器
      */
-    ResManager prm;
+    protected ResManager prm;
 
     /**
      * 注释渲染器
      * <p>
      * 仅在需要增加注释时进行初始化
      */
-    private AnnotationRender annotationRender;
+    protected AnnotationRender annotationRender;
 
     /**
      * 流式布局元素队列
      */
-    private LinkedList<Div> streamQueue = new LinkedList<>();
+    protected LinkedList<Div> streamQueue = new LinkedList<>();
 
     /**
      * 固定布局虚拟页面队列
      */
-    private LinkedList<VirtualPage> vPageList = new LinkedList<>();
+    protected LinkedList<VirtualPage> vPageList = new LinkedList<>();
 
     /**
      * 页面样式
@@ -104,25 +104,24 @@ public class OFDDoc implements Closeable {
      * <p>
      * 页边距：上下都是2.54厘米，左右都是3.17厘米。
      */
-    private PageLayout pageLayout = PageLayout.A4();
+    protected PageLayout pageLayout = PageLayout.A4();
 
     /**
      * 文档属性信息，该对象会在初始化是被创建并且添加到文档中
      * 此处只是保留引用，为了方便操作。
      */
-    private CT_CommonData cdata;
+    protected CT_CommonData cdata;
 
     /**
      * 文档是否已经关闭
      * true 表示已经关闭，false 表示未关闭
      */
-    private boolean closed = false;
+    protected boolean closed = false;
 
     /**
      * OFD文档对象
      */
-    private Document ofdDocument;
-
+    protected Document ofdDocument;
 
     /**
      * 在指定路径位置上创建一个OFD文件

@@ -21,7 +21,7 @@ public class CT_CGTransfrom extends OFDElement {
     }
 
     public CT_CGTransfrom() {
-        super("CGTransfrom");
+        super("CGTransform");
     }
 
     /**
