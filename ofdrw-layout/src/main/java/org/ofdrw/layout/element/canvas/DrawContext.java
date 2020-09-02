@@ -837,10 +837,11 @@ public class DrawContext implements Closeable {
         } else {
             Double[] deltaXArr = new Double[deltaX.size()];
             deltaX.toArray(deltaXArr);
+
             tcSTTxt.setDeltaX(deltaXArr);
         }
 
-        if (glyphs != null) {
+        if (glyphs != null && glyphs.size() > 0) {
             CT_CGTransfrom ctCgTransfrom = new CT_CGTransfrom();
             ctCgTransfrom.setCodeCount(glyphs.size());
             ctCgTransfrom.setCodePosition(0);

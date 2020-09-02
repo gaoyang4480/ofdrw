@@ -11,7 +11,7 @@ public class TextCodeTest {
         return new TextCode()
                 .setX(0.6747)
                 .setY(3.5101)
-                .setDeltaX(new ST_Array(1.9472, 1.8201, 0.8467, 0.8467))
+                .setDeltaX(new ST_Array(1.9472, 1.9472, 1.3, 1.3, 1.4, 1.9472, 1.9472, 1.5))
                 .setContent("hello");
     }
 

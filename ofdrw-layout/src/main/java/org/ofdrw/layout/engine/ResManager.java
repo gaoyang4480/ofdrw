@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -229,12 +230,44 @@ public class ResManager {
             this.drawParams = new DrawParams();
             resMenu.addResource(drawParams);
         }
-        // 生成加入资源的ID
-        ST_ID id = new ST_ID(maxUnitID.incrementAndGet());
-        param.setID(id);
-        // 加入媒体类型清单
-        drawParams.addDrawParam(param);
-        return id;
+
+        // 过滤掉重复的.
+        boolean isFind = false;
+        CT_DrawParam ctDrawParam = null;
+        List<CT_DrawParam> drawParamList = drawParams.getDrawParams();
+        for (CT_DrawParam drawParam : drawParamList) {
+            if (compareCTDrawParam(drawParam, param)) {
+                ctDrawParam = drawParam;
+                isFind = true;
+                break;
+            }
+        }
+
+        if (!isFind) {
+            // 生成加入资源的ID
+            ST_ID id = new ST_ID(maxUnitID.incrementAndGet());
+            param.setID(id);
+            // 加入媒体类型清单
+            drawParams.addDrawParam(param);
+            return id;
+        }
+
+        return ctDrawParam.getID();
+    }
+
+    private boolean compareCTDrawParam(CT_DrawParam ctDrawParam1, CT_DrawParam ctDrawParam2) {
+        boolean ret = ctDrawParam1.getJoin() == ctDrawParam2.getJoin() &&
+                ctDrawParam1.getCap() == ctDrawParam2.getCap();
+        if (ctDrawParam1.getMiterLimit() != null && ctDrawParam2.getMiterLimit() != null) {
+            ret &= ctDrawParam1.getMiterLimit().equals(ctDrawParam2.getMiterLimit());
+        }
+        if (ctDrawParam1.getDashOffset() != null && ctDrawParam2.getDashOffset() != null) {
+            ret &= ctDrawParam1.getDashOffset().equals(ctDrawParam2.getDashOffset());
+        }
+        if (ctDrawParam1.getDashPattern() != null && ctDrawParam2.getDashPattern() != null) {
+            ret &= ctDrawParam1.getDashPattern().toString().equals(ctDrawParam2.getDashPattern().toString());
+        }
+        return ret;
     }
 
     /**

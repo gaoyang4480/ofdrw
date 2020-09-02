@@ -16,7 +16,7 @@ import java.util.List;
  * @author 权观宇
  * @since 2019-09-28 10:40:37
  */
-public class ST_Array extends STBase implements Cloneable{
+public class ST_Array extends STBase implements Cloneable {
 
     /**
      * 元素收容
@@ -182,7 +182,7 @@ public class ST_Array extends STBase implements Cloneable{
         return mtx;
     }
 
-    public void printMtx(){
+    public void printMtx() {
         double[][] m = toMtx();
         for (int i = 0; i < m.length; i++) {
             for (int j = 0; j < m[i].length; j++) {
@@ -193,7 +193,7 @@ public class ST_Array extends STBase implements Cloneable{
     }
 
     @Override
-    public ST_Array clone(){
+    public ST_Array clone() {
         ST_Array res = new ST_Array();
         for (String item : this.array) {
             res.add(item);
@@ -209,4 +209,43 @@ public class ST_Array extends STBase implements Cloneable{
         }
         return sb.toString().trim();
     }
+
+    public String toSimplifiedString() {
+        StringBuilder sb = new StringBuilder();
+        Integer equalBeginIndex = null;
+        Integer equalEndIndex = null;
+        for (int i = 0; i < array.size(); i++) {
+            String item1 = array.get(i);
+            if (i != array.size() - 1) {
+                String item2 = array.get(i + 1);
+                if (item1.equals(item2)) {
+                    if (equalBeginIndex == null) {
+                        equalBeginIndex = i;
+                    }
+                    equalEndIndex = i + 1;
+                } else {
+                    if (equalBeginIndex != null && equalEndIndex != null) {
+                        sb.append(" g ").append(equalEndIndex - equalBeginIndex + 1).append(" ").append(array.get(equalEndIndex));
+                        equalBeginIndex = null;
+                        equalEndIndex = null;
+                    } else {
+                        sb.append(' ').append(item1);
+                    }
+                }
+            } else {
+                if (equalEndIndex != null) {
+                    if (i != equalEndIndex) {
+                        sb.append(' ').append(item1);
+                    }
+                } else {
+                    sb.append(' ').append(item1);
+                }
+            }
+        }
+        if (equalBeginIndex != null && equalEndIndex != null) {
+            sb.append(" g ").append(equalEndIndex - equalBeginIndex + 1).append(" ").append(array.get(equalEndIndex));
+        }
+        return sb.toString().trim();
+    }
+
 }

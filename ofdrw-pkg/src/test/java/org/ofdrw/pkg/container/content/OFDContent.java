@@ -14,6 +14,7 @@ public class OFDContent {
     public static OFD ofd(){
         CT_DocInfo docInfo = new CT_DocInfo()
                 .setDocID(UUID.randomUUID())
+                .setTile("爱上Arduino")
                 .setAuthor("权观宇")
                 .setCreationDate(LocalDate.now())
                 .setCreator("ofd r&w")

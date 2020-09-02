@@ -146,7 +146,7 @@ public class TextCode extends OFDElement implements ClipAble {
             this.removeAttr("DeltaX");
             return this;
         }
-        this.addAttribute("DeltaX", deltaX.toString());
+        this.addAttribute("DeltaX", deltaX.toSimplifiedString());
         return this;
     }
 
@@ -181,7 +181,6 @@ public class TextCode extends OFDElement implements ClipAble {
         return ST_Array.getInstance(this.attributeValue("DeltaX"));
     }
 
-
     /**
      * 【可选 属性】
      * 设置 文字之间在 Y 方向上的偏移值
@@ -199,7 +198,7 @@ public class TextCode extends OFDElement implements ClipAble {
             this.removeAttr("DeltaY");
             return this;
         }
-        this.addAttribute("DeltaY", deltaY.toString());
+        this.addAttribute("DeltaY", deltaY.toSimplifiedString());
         return this;
     }
 
