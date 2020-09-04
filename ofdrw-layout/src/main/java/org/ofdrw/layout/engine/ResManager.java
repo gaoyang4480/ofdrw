@@ -14,6 +14,7 @@ import org.ofdrw.core.basicType.ST_Loc;
 import org.ofdrw.core.graph.pathObj.CT_Path;
 import org.ofdrw.core.pageDescription.drawParam.CT_DrawParam;
 import org.ofdrw.core.text.font.CT_Font;
+import org.ofdrw.core.text.font.Charset;
 import org.ofdrw.font.Font;
 import org.ofdrw.pkg.container.DocDir;
 
@@ -143,23 +144,38 @@ public class ResManager {
             if (fontFile != null) {
                 ctFont.setFontFile(font.getFontFileName());
             }
-            // 设置特殊字族属性
-            if (familyName != null) {
-                switch (familyName.toLowerCase()) {
-                    case "serif":
-                        ctFont.setSerif(true);
-                        break;
-                    case "bold":
-                        ctFont.setBold(true);
-                        break;
-                    case "italic":
-                        ctFont.setItalic(true);
-                        break;
-                    case "fixedwidth":
-                        ctFont.setFixedWidth(true);
-                        break;
-                }
+            if (font.getCharSet() != null && !font.getCharSet().equals("")) {
+                ctFont.setCharset(Charset.getInstance(font.getCharSet()));
             }
+            if (font.isSerif()) {
+                ctFont.setSerif(font.isSerif());
+            }
+            if (font.isBold()) {
+                ctFont.setBold(font.isBold());
+            }
+            if (font.isItalic()) {
+                ctFont.setItalic(font.isItalic());
+            }
+            if (font.isFixedWidth()) {
+                ctFont.setFixedWidth(font.isFixedWidth());
+            }
+            // 设置特殊字族属性
+//            if (familyName != null) {
+//                switch (familyName.toLowerCase()) {
+//                    case "serif":
+//                        ctFont.setSerif(true);
+//                        break;
+//                    case "bold":
+//                        ctFont.setBold(true);
+//                        break;
+//                    case "italic":
+//                        ctFont.setItalic(true);
+//                        break;
+//                    case "fixedwidth":
+//                        ctFont.setFixedWidth(true);
+//                        break;
+//                }
+//            }
             if (fontFile != null) {
                 // 将字体文件加入到文档容器中
                 docDir.addResource(fontFile);

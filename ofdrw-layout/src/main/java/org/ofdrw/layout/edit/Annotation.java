@@ -24,7 +24,6 @@ public class Annotation {
      */
     private Drawer drawer;
 
-
     /**
      * 注释类型
      */
@@ -87,10 +86,8 @@ public class Annotation {
      */
     private ST_Box boundary;
 
-
-    private Annotation() {
+    public Annotation() {
     }
-
 
     /**
      * 创建注释对象
@@ -131,7 +128,6 @@ public class Annotation {
         this.boundary = boundary;
     }
 
-
     /**
      * 获取注释底层对象
      *
@@ -167,10 +163,13 @@ public class Annotation {
         if (parameters != null) {
             parameters.forEach(annot::addParameter);
         }
-        annot.setAppearance(new Appearance(boundary));
+        if (boundary != null) {
+            annot.setAppearance(new Appearance(boundary));
+        } else {
+            annot.setAppearance(new Appearance());
+        }
         return annot;
     }
-
 
     public ST_Box getBoundary() {
         return boundary;

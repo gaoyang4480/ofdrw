@@ -3,6 +3,7 @@ package org.ofdrw.core.annotation.pageannot;
 import org.junit.jupiter.api.Test;
 import org.ofdrw.TestTool;
 import org.ofdrw.core.basicStructure.pageObj.layer.block.PathObjectTest;
+import org.ofdrw.core.basicStructure.pageObj.layer.block.TextObjectTest;
 import org.ofdrw.core.basicType.ST_Box;
 import org.ofdrw.core.basicType.ST_ID;
 
@@ -14,7 +15,8 @@ public class AnnotTest {
 
     public static Annot annotCase() {
         Appearance appearance = new Appearance(new ST_Box(50, 50, 200, 200))
-                .addPageBlock(PathObjectTest.pathObjectCase());
+                .addPageBlock(PathObjectTest.pathObjectCase())
+                .addPageBlock(TextObjectTest.textObjectCase());
 
         return new Annot()
                 .setID(new ST_ID(19))
@@ -27,6 +29,7 @@ public class AnnotTest {
                 .addParameter("Key2", "Value3")
                 .setAppearance(appearance);
     }
+
     @Test
     public void gen() throws Exception {
         TestTool.genXml("Annot", annotCase());

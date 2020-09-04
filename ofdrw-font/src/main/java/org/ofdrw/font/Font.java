@@ -25,6 +25,31 @@ public class Font {
     private Path fontFile;
 
     /**
+     * 斜体
+     */
+    private boolean italic = false;
+
+    /**
+     * 粗体
+     */
+    private boolean bold = false;
+
+    /**
+     * 带衬线
+     */
+    private boolean serif = false;
+
+    /**
+     * 等宽字型
+     */
+    private boolean fixedWidth = false;
+
+    /**
+     * 字型适用的字符分类，用于匹配替代字型
+     */
+    private String charSet;
+
+    /**
      * 可打印字符宽度映射
      */
     private double[] printableAsciiWidthMap = null;
@@ -88,7 +113,7 @@ public class Font {
 
     /**
      * 设置可打印字符宽度映射表
-     *
+     * <p>
      * 在使用操作系统字体时，默认采用ACSII 0.5 其余1的比例计算宽度，因此可能需要手动设置宽度比例才可以达到相应的效果
      *
      * @param map 映射比例表
@@ -147,4 +172,45 @@ public class Font {
         this.fontFile = fontFile;
         return this;
     }
+
+    public boolean isItalic() {
+        return italic;
+    }
+
+    public void setItalic(boolean italic) {
+        this.italic = italic;
+    }
+
+    public boolean isBold() {
+        return bold;
+    }
+
+    public void setBold(boolean bold) {
+        this.bold = bold;
+    }
+
+    public boolean isSerif() {
+        return serif;
+    }
+
+    public void setSerif(boolean serif) {
+        this.serif = serif;
+    }
+
+    public boolean isFixedWidth() {
+        return fixedWidth;
+    }
+
+    public void setFixedWidth(boolean fixedWidth) {
+        this.fixedWidth = fixedWidth;
+    }
+
+    public String getCharSet() {
+        return charSet;
+    }
+
+    public void setCharSet(String charSet) {
+        this.charSet = charSet;
+    }
+
 }

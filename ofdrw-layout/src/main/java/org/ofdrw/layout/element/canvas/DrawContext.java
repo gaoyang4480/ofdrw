@@ -12,6 +12,7 @@ import org.ofdrw.core.graph.pathObj.AbbreviatedData;
 import org.ofdrw.core.graph.pathObj.CT_Path;
 import org.ofdrw.core.graph.pathObj.Rule;
 import org.ofdrw.core.pageDescription.color.color.CT_Color;
+import org.ofdrw.core.pageDescription.color.color.ColorClusterType;
 import org.ofdrw.core.pageDescription.drawParam.LineCapType;
 import org.ofdrw.core.pageDescription.drawParam.LineJoinType;
 import org.ofdrw.core.text.CT_CGTransfrom;
@@ -106,6 +107,26 @@ public class DrawContext implements Closeable {
         this.stack = new LinkedList<>();
     }
 
+    /**
+     * 设置边框大小
+     *
+     * @param boundary 边框
+     */
+    public void setBoundary(ST_Box boundary) {
+        this.boundary = boundary;
+    }
+
+    /**
+     * 设置边框大小
+     *
+     * @param x 左上角x坐标
+     * @param y 左上角y坐标
+     * @param w 宽度
+     * @param h 高度
+     */
+    public void setBoundary(double x, double y, double w, double h) {
+        this.boundary = new ST_Box(x, y, w, h);
+    }
 
     /**
      * 根据上下文属性创建一个Path对象
@@ -481,6 +502,10 @@ public class DrawContext implements Closeable {
         workPathObj.setFill(true);
         if (this.state.fillColor != null) {
             workPathObj.setFillColor(CT_Color.rgb(this.state.fillColor));
+        } else if (this.state.colorClusterType != null) {
+            ColorClusterType tmpColorClusterType = ColorClusterType.getInstance(this.state.colorClusterType);
+            tmpColorClusterType.setParent(null);
+            workPathObj.setFillColor(new CT_Color(tmpColorClusterType));
         }
 
         return this;
@@ -755,7 +780,7 @@ public class DrawContext implements Closeable {
         return this;
     }
 
-    public DrawContext fillText(String text, double x, double y, List<Double> deltaX, List<Double> deltaY, List<Integer> glyphs) throws IOException {
+    public DrawContext fillText(String text, double x, double y, ST_Array deltaX, ST_Array deltaY, ST_Array glyphs) throws IOException {
         if (text == null || text.trim().isEmpty()) {
             return this;
         }
@@ -792,6 +817,10 @@ public class DrawContext implements Closeable {
         // 设置颜色
         if (state.fillColor != null) {
             txtObj.setFillColor(CT_Color.rgb(state.fillColor));
+        } else if (state.colorClusterType != null) {
+            ColorClusterType tmpColorClusterType = ColorClusterType.getInstance(state.colorClusterType);
+            tmpColorClusterType.setParent(null);
+            txtObj.setFillColor(new CT_Color(tmpColorClusterType));
         }
         // 设置变换矩阵
         if (state.ctm != null) {
@@ -829,32 +858,21 @@ public class DrawContext implements Closeable {
                 .setContent(text)
                 .setX(xx)
                 .setY(yy);
-
         if (readDirection == 90 || readDirection == 270) {
-            Double[] deltaYArr = new Double[deltaY.size()];
-            deltaY.toArray(deltaYArr);
-            tcSTTxt.setDeltaY(deltaYArr);
+            tcSTTxt.setDeltaY(deltaY);
         } else {
-            Double[] deltaXArr = new Double[deltaX.size()];
-            deltaX.toArray(deltaXArr);
-
-            tcSTTxt.setDeltaX(deltaXArr);
+            tcSTTxt.setDeltaX(deltaX);
         }
-
         if (glyphs != null && glyphs.size() > 0) {
             CT_CGTransfrom ctCgTransfrom = new CT_CGTransfrom();
             ctCgTransfrom.setCodeCount(glyphs.size());
             ctCgTransfrom.setCodePosition(0);
             ctCgTransfrom.setGlyphCount(glyphs.size());
-            ST_Array glyphsArr = new ST_Array();
-            for (int i = 0; i < glyphs.size(); i++) {
-                glyphsArr.add(String.valueOf(glyphs.get(i)));
-            }
-            ctCgTransfrom.setGlyphs(glyphsArr);
+            ctCgTransfrom.setGlyphs(glyphs);
             txtObj.addCGTransform(ctCgTransfrom);
         }
-
         txtObj.addTextCode(tcSTTxt);
+
         // 加入容器
         container.addPageBlock(txtObj);
         return this;
@@ -1006,7 +1024,6 @@ public class DrawContext implements Closeable {
         return this;
     }
 
-
     /**
      * 设置填充颜色
      * <p>
@@ -1019,6 +1036,33 @@ public class DrawContext implements Closeable {
      */
     public DrawContext setFillColor(int r, int g, int b) {
         return setFillColor(new int[]{r, g, b});
+    }
+
+    /**
+     * 设置填充颜色
+     *
+     * @param colorClusterType 颜色族
+     * @return this
+     */
+    public DrawContext setFillColor(ColorClusterType colorClusterType) {
+        if (colorClusterType == null) {
+            return this;
+        }
+
+        this.state.colorClusterType = colorClusterType;
+        if (this.workPathObj != null) {
+            ColorClusterType tmpColorClusterType = ColorClusterType.getInstance(colorClusterType);
+            tmpColorClusterType.setParent(null);
+            this.workPathObj.setFillColor(new CT_Color(tmpColorClusterType));
+
+//            CT_Color fillColor = this.workPathObj.getFillColor();
+//            if (fillColor != null) {
+//                fillColor.setColor(tmpColorClusterType);
+//            } else {
+//                this.workPathObj.setFillColor(new CT_Color(tmpColorClusterType));
+//            }
+        }
+        return this;
     }
 
     /**

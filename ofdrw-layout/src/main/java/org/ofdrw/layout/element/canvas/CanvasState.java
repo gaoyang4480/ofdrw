@@ -1,6 +1,7 @@
 package org.ofdrw.layout.element.canvas;
 
 import org.ofdrw.core.basicType.ST_Array;
+import org.ofdrw.core.pageDescription.color.color.ColorClusterType;
 
 /**
  * 画布状态
@@ -29,10 +30,14 @@ public class CanvasState implements Cloneable {
     int[] fillColor = null;
 
     /**
+     * 颜色族
+     */
+    ColorClusterType colorClusterType = null;
+
+    /**
      * 变换矩阵
      */
     ST_Array ctm = null;
-
 
     /**
      * 线宽度

@@ -26,6 +26,10 @@ public class Appearance extends CT_PageBlock {
         setBoundary(boundary);
     }
 
+    public Appearance() {
+        super("Appearance");
+    }
+
     /**
      * 【必选】
      * 设置 边界

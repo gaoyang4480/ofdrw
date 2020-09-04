@@ -22,6 +22,7 @@ import org.ofdrw.reader.ResourceLocator;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -89,7 +90,6 @@ public class AnnotationRender {
 
     }
 
-
     /**
      * 注释 渲染器
      *
@@ -149,13 +149,20 @@ public class AnnotationRender {
         // 加入注释容器中
         annotContainer.addAnnot(annot);
         Appearance container = annot.getAppearance();
-        ST_Box box = container.getBoundary()
-                .clone()
-                .setTopLeftX(0d)
-                .setTopLeftY(0d);
-        // 创建绘制上下文
-        DrawContext ctx = new DrawContext(container, box, maxUnitID, prm);
-        // 绘制注解内容
-        drawer.draw(ctx);
+        ST_Box box = container.getBoundary();
+        if (box != null) {
+            ST_Box boxClone = box.clone()
+                    .setTopLeftX(0d)
+                    .setTopLeftY(0d);
+            // 创建绘制上下文
+            DrawContext ctx = new DrawContext(container, boxClone, maxUnitID, prm);
+            // 绘制注解内容
+            drawer.draw(ctx);
+        } else {
+            container.setObjID(maxUnitID.incrementAndGet());
+            DrawContext ctx = new DrawContext(container, null, maxUnitID, prm);
+            drawer.draw(ctx);
+        }
     }
+
 }
