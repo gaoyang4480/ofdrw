@@ -3,6 +3,7 @@ package org.ofdrw.pkg.container;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.ofdrw.core.signatures.Signatures;
+import org.ofdrw.pkg.enums.ContainerType;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -28,9 +29,13 @@ public class SignsDir extends VirtualContainer {
      */
     public static final String SignaturesFileName = "Signatures.xml";
 
-
     public SignsDir(Path fullDir) throws IllegalArgumentException {
         super(fullDir);
+        initContainer();
+    }
+
+    public SignsDir(ContainerArgs containerArgs) throws IllegalArgumentException {
+        super(containerArgs);
         initContainer();
     }
 
@@ -38,18 +43,20 @@ public class SignsDir extends VirtualContainer {
      * 初始化容器
      */
     private void initContainer() {
-        File fullDirFile = new File(getSysAbsPath());
-        File[] files = fullDirFile.listFiles();
-        if (files != null) {
-            // 遍历容器中已经有的签名目录，初始签名数量
-            for (File f : files) {
-                String dirName = f.getName();
-                // 签名目录名为： Sign_N
-                if (dirName.startsWith(SignDir.SignContainerPrefix)) {
-                    String numb = dirName.replace(SignDir.SignContainerPrefix, "");
-                    int num = Integer.parseInt(numb);
-                    if (maxSignIndex <= num) {
-                        maxSignIndex = num + 1;
+        if (containerType == ContainerType.FILE_SYSTEM) {
+            File fullDirFile = new File(getSysAbsPath());
+            File[] files = fullDirFile.listFiles();
+            if (files != null) {
+                // 遍历容器中已经有的签名目录，初始签名数量
+                for (File f : files) {
+                    String dirName = f.getName();
+                    // 签名目录名为： Sign_N
+                    if (dirName.startsWith(SignDir.SignContainerPrefix)) {
+                        String numb = dirName.replace(SignDir.SignContainerPrefix, "");
+                        int num = Integer.parseInt(numb);
+                        if (maxSignIndex <= num) {
+                            maxSignIndex = num + 1;
+                        }
                     }
                 }
             }
@@ -89,7 +96,7 @@ public class SignsDir extends VirtualContainer {
         String name = SignDir.SignContainerPrefix + maxSignIndex;
         maxSignIndex++;
         // 创建容器
-        return this.obtainContainer(name, SignDir::new);
+        return this.obtainContainer(name, containerType, zipContainer, SignDir::new);
     }
 
     /**
@@ -104,9 +111,10 @@ public class SignsDir extends VirtualContainer {
             throw new NumberFormatException("签名容器index必须大于0");
         }
         String containerName = SignDir.SignContainerPrefix + index;
-        return this.getContainer(containerName, SignDir::new);
+        return this.getContainerByContainerArgs(containerName, SignDir::new);
     }
+
     public SignDir getSignDir(String containerName) throws FileNotFoundException {
-        return this.getContainer(containerName, SignDir::new);
+        return this.getContainerByContainerArgs(containerName, SignDir::new);
     }
 }

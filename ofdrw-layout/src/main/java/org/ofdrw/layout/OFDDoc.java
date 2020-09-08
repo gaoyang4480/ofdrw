@@ -1,7 +1,6 @@
 package org.ofdrw.layout;
 
 import org.dom4j.DocumentException;
-import org.dom4j.Element;
 import org.ofdrw.core.attachment.Attachments;
 import org.ofdrw.core.attachment.CT_Attachment;
 import org.ofdrw.core.basicStructure.doc.CT_CommonData;
@@ -23,7 +22,7 @@ import org.ofdrw.layout.engine.*;
 import org.ofdrw.layout.exception.DocReadException;
 import org.ofdrw.pkg.container.DocDir;
 import org.ofdrw.pkg.container.OFDDir;
-import org.ofdrw.reader.BadOFDException;
+import org.ofdrw.pkg.enums.ContainerType;
 import org.ofdrw.reader.OFDReader;
 import org.ofdrw.reader.PageInfo;
 import org.ofdrw.reader.ResourceLocator;
@@ -34,10 +33,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -129,7 +128,18 @@ public class OFDDoc implements Closeable {
      * @param outPath OFD输出路径
      */
     public OFDDoc(Path outPath) {
-        this();
+        this(outPath, true);
+    }
+
+    public OFDDoc(Path outPath, boolean isSetDocInfo) {
+        this(outPath, isSetDocInfo, ContainerType.FILE_SYSTEM);
+    }
+
+    public OFDDoc(Path outPath, ContainerType containerType) {
+        this(outPath, true, containerType);
+    }
+
+    public OFDDoc(Path outPath, boolean isSetDocInfo, ContainerType containerType) {
         if (outPath == null) {
             throw new IllegalArgumentException("OFD文件存储路径(outPath)为空");
         }
@@ -137,6 +147,9 @@ public class OFDDoc implements Closeable {
             throw new IllegalArgumentException("OFD文件存储路径(outPath)不能是目录");
         }
         this.outPath = outPath;
+
+        // 初始化文档对象
+        containerInit(isSetDocInfo, containerType);
     }
 
     /**
@@ -166,15 +179,6 @@ public class OFDDoc implements Closeable {
     }
 
     /**
-     * 文档初始化构造器
-     */
-    private OFDDoc() {
-        // 初始化文档对象
-        containerInit();
-    }
-
-
-    /**
      * 设置页面默认的样式
      *
      * @param pageLayout 页面默认样式
@@ -193,15 +197,19 @@ public class OFDDoc implements Closeable {
     /**
      * 初始化OFD虚拟容器
      */
-    private void containerInit() {
-        CT_DocInfo docInfo = new CT_DocInfo()
-                .setDocID(UUID.randomUUID())
-                .setCreationDate(LocalDate.now())
-                .setCreator("OFD R&W")
-                .setCreatorVersion(GlobalVar.Version);
+    private void containerInit(boolean isSetDocInfo, ContainerType containerType) {
         DocBody docBody = new DocBody()
-                .setDocInfo(docInfo)
                 .setDocRoot(new ST_Loc("Doc_0/Document.xml"));
+        if (isSetDocInfo) {
+            ThreadLocalRandom random = ThreadLocalRandom.current();
+            UUID uuid = new UUID(random.nextInt(), random.nextInt());
+            CT_DocInfo docInfo = new CT_DocInfo()
+                    .setDocID(uuid)
+                    .setCreationDate(LocalDate.now())
+                    .setCreator("OFD R&W")
+                    .setCreatorVersion(GlobalVar.Version);
+            docBody.setDocInfo(docInfo);
+        }
         OFD ofd = new OFD().addDocBody(docBody);
 
         // 创建一个低层次的文档对象
@@ -213,9 +221,12 @@ public class OFDDoc implements Closeable {
         ofdDocument.setCommonData(cdata)
                 // 空的页面引用集合，该集合将会在解析虚拟页面时得到填充
                 .setPages(new Pages());
-
-        ofdDir = OFDDir.newOFD()
-                .setOfd(ofd);
+        if (containerType == ContainerType.FILE_SYSTEM) {
+            ofdDir = OFDDir.newOFD();
+        } else if (containerType == ContainerType.ZIP_MEMORY_FILE) {
+            ofdDir = OFDDir.newZipOFD();
+        }
+        ofdDir.setOfd(ofd);
         // 创建一个新的文档
         DocDir docDir = ofdDir.newDoc();
         docDir.setDocument(ofdDocument);

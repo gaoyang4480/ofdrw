@@ -4,9 +4,7 @@ import org.dom4j.*;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -34,6 +32,18 @@ public class ElemCup {
     public static Element inject(Path file) throws DocumentException {
         SAXReader reader = new SAXReader();
         Document document = reader.read(file.toFile());
+        return document.getRootElement();
+    }
+
+    public static Element inject(byte[] fileData) throws DocumentException {
+        SAXReader reader = new SAXReader();
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(fileData);
+        Document document = reader.read(byteArrayInputStream);
+        try {
+            byteArrayInputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return document.getRootElement();
     }
 
@@ -70,4 +80,23 @@ public class ElemCup {
             writeToFile.close();
         }
     }
+
+    public static byte[] dump(Element e) throws IOException {
+        if (e == null) {
+            return null;
+        }
+        Document doc = DocumentHelper.createDocument();
+        if (e.getDocument() != null) {
+            // 如果元素所属文档不为空，说明是从文件中加载得到，此时需要Clone这个对象以放入新的Document中
+            e = (Element) e.clone();
+        }
+        doc.add(e);
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            XMLWriter writeToFile = new XMLWriter(out);
+            writeToFile.write(doc);
+            writeToFile.close();
+            return out.toByteArray();
+        }
+    }
+
 }

@@ -93,7 +93,7 @@ class VirtualContainerTest {
 
         Path path = Paths.get(target);
         VirtualContainer vc2 = new VirtualContainer(path);
-        VirtualContainer pages1 = vc2.getContainer("Pages", VirtualContainer::new);
+        VirtualContainer pages1 = vc2.getContainerByContainerArgs("Pages", VirtualContainer::new);
         Assertions.assertNotNull(pages1);
     }
 

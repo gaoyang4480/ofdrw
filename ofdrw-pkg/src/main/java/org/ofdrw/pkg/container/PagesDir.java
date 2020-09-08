@@ -1,5 +1,7 @@
 package org.ofdrw.pkg.container;
 
+import org.ofdrw.pkg.enums.ContainerType;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
@@ -11,6 +13,7 @@ import java.nio.file.Path;
  * @since 2020-01-18 03:34:34
  */
 public class PagesDir extends VirtualContainer {
+
     /**
      * 最大页面索引 + 1
      * <p>
@@ -18,9 +21,17 @@ public class PagesDir extends VirtualContainer {
      */
     private int maxPageIndex = 0;
 
+    public int getMaxPageIndex() {
+        return maxPageIndex;
+    }
 
     public PagesDir(Path fullDir) throws IllegalArgumentException {
         super(fullDir);
+        initContainer();
+    }
+
+    public PagesDir(ContainerArgs containerArgs) throws IllegalArgumentException {
+        super(containerArgs);
         initContainer();
     }
 
@@ -28,17 +39,19 @@ public class PagesDir extends VirtualContainer {
      * 初始化容器
      */
     private void initContainer() {
-        File fullDirFile = new File(getSysAbsPath());
-        File[] files = fullDirFile.listFiles();
-        if (files != null) {
-            // 遍历容器中已经有的页面目录，初始页面数量
-            for (File f : files) {
-                // 签名目录名为： Page_N
-                if (f.getName().startsWith(PageDir.PageContainerPrefix)) {
-                    String numb = f.getName().replace(PageDir.PageContainerPrefix, "");
-                    int num = Integer.parseInt(numb);
-                    if (maxPageIndex <= num) {
-                        maxPageIndex = num + 1;
+        if (containerType == ContainerType.FILE_SYSTEM) {
+            File fullDirFile = new File(getSysAbsPath());
+            File[] files = fullDirFile.listFiles();
+            if (files != null) {
+                // 遍历容器中已经有的页面目录，初始页面数量
+                for (File f : files) {
+                    // 签名目录名为： Page_N
+                    if (f.getName().startsWith(PageDir.PageContainerPrefix)) {
+                        String numb = f.getName().replace(PageDir.PageContainerPrefix, "");
+                        int num = Integer.parseInt(numb);
+                        if (maxPageIndex <= num) {
+                            maxPageIndex = num + 1;
+                        }
                     }
                 }
             }
@@ -54,7 +67,7 @@ public class PagesDir extends VirtualContainer {
         String name = PageDir.PageContainerPrefix + maxPageIndex;
         maxPageIndex++;
         // 创建容器
-        return this.obtainContainer(name, PageDir::new);
+        return this.obtainContainer(name, containerType, zipContainer, PageDir::new);
     }
 
     /**
@@ -68,9 +81,10 @@ public class PagesDir extends VirtualContainer {
      */
     public PageDir getByIndex(int index) throws FileNotFoundException {
         String containerName = PageDir.PageContainerPrefix + index;
-        return this.getContainer(containerName, PageDir::new);
+        return this.getContainerByContainerArgs(containerName, PageDir::new);
     }
+
     public PageDir getPageDir(String containerName) throws FileNotFoundException {
-        return this.getContainer(containerName, PageDir::new);
+        return this.getContainerByContainerArgs(containerName, PageDir::new);
     }
 }

@@ -3,6 +3,7 @@ package org.ofdrw.pkg.container;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.ofdrw.core.signatures.sig.Signature;
+import org.ofdrw.pkg.enums.ContainerType;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -42,6 +43,19 @@ public class SignDir extends VirtualContainer {
 
     public SignDir(Path fullDir) throws IllegalArgumentException {
         super(fullDir);
+        // 标准的签名目录名为 Sign_N (N代表第几个签名)
+        String indexStr = this.getContainerName()
+                .replace(SignContainerPrefix, "");
+        try {
+            index = Integer.parseInt(indexStr);
+        } catch (NumberFormatException e) {
+            clean();
+            throw new IllegalArgumentException("不合法的文件目录名称：" + this.getContainerName() + "，目录名称应为 Sign_N");
+        }
+    }
+
+    public SignDir(ContainerArgs containerArgs) throws IllegalArgumentException {
+        super(containerArgs);
         // 标准的签名目录名为 Sign_N (N代表第几个签名)
         String indexStr = this.getContainerName()
                 .replace(SignContainerPrefix, "");

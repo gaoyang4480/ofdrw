@@ -1,5 +1,7 @@
 package org.ofdrw.pkg.container;
 
+import org.ofdrw.pkg.enums.ContainerType;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,7 +16,11 @@ import java.nio.file.Path;
 public class ResDir extends VirtualContainer {
 
     public ResDir(Path fullDir) throws IllegalArgumentException {
-        super(fullDir);
+        super(fullDir, ContainerType.FILE_SYSTEM);
+    }
+
+    public ResDir(ContainerArgs containerArgs) throws IllegalArgumentException {
+        super(containerArgs);
     }
 
     /**
@@ -34,6 +40,14 @@ public class ResDir extends VirtualContainer {
             throw new IllegalArgumentException("加入的资源不存在: " + res.toAbsolutePath().toString());
         }
         this.putFile(res);
+        return this;
+    }
+
+    public ResDir add(String resourceFileName, byte[] resourceData) throws IOException {
+        if (resourceData == null || resourceFileName == null || resourceFileName.isEmpty()) {
+            return this;
+        }
+        this.putFile(resourceFileName, resourceData);
         return this;
     }
 

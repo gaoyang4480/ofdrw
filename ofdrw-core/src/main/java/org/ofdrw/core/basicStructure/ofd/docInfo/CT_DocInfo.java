@@ -36,6 +36,11 @@ public class CT_DocInfo extends OFDElement {
         return this;
     }
 
+    public CT_DocInfo setDocID(String docID) {
+        this.setOFDEntity("DocID", docID);
+        return this;
+    }
+
     /**
      * 随机产生一个UUID作为文件标识符
      *

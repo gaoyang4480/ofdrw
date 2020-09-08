@@ -1,16 +1,19 @@
 package org.ofdrw.pkg.container;
 
-import net.lingala.zip4j.ZipFile;
+//import net.lingala.zip4j.ZipFile;
+
+import org.apache.commons.io.FileUtils;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.ofdrw.core.basicStructure.ofd.OFD;
+import org.ofdrw.pkg.enums.ContainerType;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
+import java.nio.file.Paths;
 
 /**
  * OFD文档对象
@@ -39,12 +42,21 @@ public class OFDDir extends VirtualContainer {
      */
     public static OFDDir newOFD() {
         try {
-            Path tempDirectory = Files.createTempDirectory("ofd-tmp-");
-//            System.out.println(">> 工作目录: " + tempDirectory.toAbsolutePath());
-            return new OFDDir(tempDirectory);
+            long now = System.currentTimeMillis();
+            Path tempDirectory = Paths.get(FileUtils.getTempDirectoryPath() + "ofd-tmp-" + now);
+            FileUtils.forceMkdir(tempDirectory.toFile());
+            // Modified by gaoyang.
+            // 执行效率低.
+            //Path tempDirectory = Files.createTempDirectory("ofd-tmp-");
+            //System.out.println(">> 工作目录: " + tempDirectory.toAbsolutePath());
+            return new OFDDir(tempDirectory, ContainerType.FILE_SYSTEM);
         } catch (IOException e) {
             throw new RuntimeException("无法创建OFD虚拟容器工作空间，原因：" + e.getMessage(), e);
         }
+    }
+
+    public static OFDDir newZipOFD() {
+        return new OFDDir(ContainerType.ZIP_MEMORY_FILE);
     }
 
     /**
@@ -58,7 +70,15 @@ public class OFDDir extends VirtualContainer {
      * @throws IllegalArgumentException 路径参数异常
      */
     public OFDDir(Path fullDir) throws IllegalArgumentException {
-        super(fullDir);
+        this(fullDir, ContainerType.FILE_SYSTEM);
+    }
+
+    public OFDDir(ContainerType containerType) throws IllegalArgumentException {
+        this(null, containerType);
+    }
+
+    public OFDDir(Path fullDir, ContainerType containerType) throws IllegalArgumentException {
+        super(fullDir, containerType);
         initContainer();
     }
 
@@ -66,17 +86,19 @@ public class OFDDir extends VirtualContainer {
      * 容器初始化
      */
     private void initContainer() {
-        File fullDirFile = new File(getSysAbsPath());
-        File[] files = fullDirFile.listFiles();
-        if (files != null) {
-            // 遍历容器中已经有的文档目录，初始文档数量
-            for (File f : files) {
-                // 文档目录名为： Doc_N
-                if (f.getName().startsWith(DocDir.DocContainerPrefix)) {
-                    String numb = f.getName().replace(DocDir.DocContainerPrefix, "");
-                    int num = Integer.parseInt(numb);
-                    if (maxDocIndex <= num) {
-                        maxDocIndex = num + 1;
+        if (containerType == ContainerType.FILE_SYSTEM) {
+            File fullDirFile = new File(getSysAbsPath());
+            File[] files = fullDirFile.listFiles();
+            if (files != null) {
+                // 遍历容器中已经有的文档目录，初始文档数量
+                for (File f : files) {
+                    // 文档目录名为： Doc_N
+                    if (f.getName().startsWith(DocDir.DocContainerPrefix)) {
+                        String numb = f.getName().replace(DocDir.DocContainerPrefix, "");
+                        int num = Integer.parseInt(numb);
+                        if (maxDocIndex <= num) {
+                            maxDocIndex = num + 1;
+                        }
                     }
                 }
             }
@@ -114,7 +136,7 @@ public class OFDDir extends VirtualContainer {
     public DocDir newDoc() {
         String name = DocDir.DocContainerPrefix + maxDocIndex;
         maxDocIndex++;
-        return this.obtainContainer(name, DocDir::new);
+        return this.obtainContainer(name, containerType, zipContainer, DocDir::new);
     }
 
     /**
@@ -130,7 +152,7 @@ public class OFDDir extends VirtualContainer {
         if (index >= maxDocIndex) {
             maxDocIndex = index + 1;
         }
-        return this.obtainContainer(name, DocDir::new);
+        return this.obtainContainer(name, containerType, zipContainer, DocDir::new);
     }
 
     /**
@@ -142,10 +164,11 @@ public class OFDDir extends VirtualContainer {
      */
     public DocDir getDocByIndex(int index) throws FileNotFoundException {
         String name = DocDir.DocContainerPrefix + index;
-        return this.getContainer(name, DocDir::new);
+        return this.getContainerByContainerArgs(name, DocDir::new);
     }
+
     public DocDir getDocDir(String name) throws FileNotFoundException {
-        return this.getContainer(name, DocDir::new);
+        return this.getContainerByContainerArgs(name, DocDir::new);
     }
 
     /**
@@ -178,9 +201,13 @@ public class OFDDir extends VirtualContainer {
         }
         // 刷入缓存中的内容
         this.flush();
-        String fullOfFilePath = filePath.toAbsolutePath().toString();
-        // 打包OFD文件
-        this.zip(getSysAbsPath(), fullOfFilePath);
+        if (containerType == ContainerType.FILE_SYSTEM) {
+            String fullOfFilePath = filePath.toAbsolutePath().toString();
+            // 打包OFD文件
+            this.zip(getSysAbsPath(), fullOfFilePath);
+        } else if (containerType == ContainerType.ZIP_MEMORY_FILE) {
+            this.zipContainer.jar(filePath);
+        }
     }
 
     /**
@@ -191,17 +218,18 @@ public class OFDDir extends VirtualContainer {
      * @throws IOException IO异常
      */
     private void zip(String workDirPath, String fullOfFilePath) throws IOException {
-        ZipFile ofdFile = new ZipFile(fullOfFilePath);
-        final File[] files = new File(workDirPath).listFiles();
-        if (files == null) {
-            throw new RuntimeException("目录中没有任何文件无法打包");
-        }
-        for (File f : files) {
-            if (f.isDirectory()) {
-                ofdFile.addFolder(f);
-            } else {
-                ofdFile.addFile(f);
-            }
-        }
+//        ZipFile ofdFile = new ZipFile(fullOfFilePath);
+//        final File[] files = new File(workDirPath).listFiles();
+//        if (files == null) {
+//            throw new RuntimeException("目录中没有任何文件无法打包");
+//        }
+//        for (File f : files) {
+//            if (f.isDirectory()) {
+//                ofdFile.addFolder(f);
+//            } else {
+//                ofdFile.addFile(f);
+//            }
+//        }
     }
+
 }

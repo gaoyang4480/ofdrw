@@ -17,10 +17,21 @@ import java.nio.file.Path;
  * @since 2020-02-03 03:34:31
  */
 public class Img extends Div {
+
     /**
      * 图片文件路径
      */
     private Path src;
+
+    /**
+     * 图片文件名
+     */
+    private String imageName;
+
+    /**
+     * 图片数据
+     */
+    private byte[] imageData;
 
 //    /**
 //     * 是否保持比例缩放
@@ -37,9 +48,24 @@ public class Img extends Div {
     }
 
     public Img(double width, double height, Path src) throws IOException {
-        this(src);
-        this.setWidth(width)
-                .setHeight(height);
+        this();
+        if (src == null || Files.notExists(src)) {
+            throw new IllegalArgumentException("图片文件为空或不存在");
+        }
+        this.src = src;
+        this.setWidth(width / 5)
+                .setHeight(height / 5);
+    }
+
+    public Img(double width, double height, String imageName, byte[] imageData) throws IOException {
+        this();
+        if (imageData == null || imageName == null || imageName.isEmpty()) {
+            throw new IllegalArgumentException("图片数据或图片名为空");
+        }
+        this.imageName = imageName;
+        this.imageData = imageData;
+        this.setWidth(width / 5)
+                .setHeight(height / 5);
     }
 
     public Img(Path src) throws IOException {
@@ -62,6 +88,14 @@ public class Img extends Div {
 
     public Path getSrc() {
         return src;
+    }
+
+    public String getImageName() {
+        return imageName;
+    }
+
+    public byte[] getImageData() {
+        return imageData;
     }
 
 //    public boolean isFit() {

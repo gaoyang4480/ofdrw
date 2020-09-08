@@ -25,6 +25,16 @@ public class Font {
     private Path fontFile;
 
     /**
+     * 字体文件名
+     */
+    private String fontFileName;
+
+    /**
+     * 字体文件数据
+     */
+    private byte[] fontData;
+
+    /**
      * 斜体
      */
     private boolean italic = false;
@@ -69,6 +79,13 @@ public class Font {
         this.name = name;
         this.familyName = familyName;
         this.fontFile = fontFile;
+    }
+
+    public Font(String name, String familyName, String fontFileName, byte[] fontData) {
+        this.name = name;
+        this.familyName = familyName;
+        this.fontFileName = fontFileName;
+        this.fontData = fontData;
     }
 
     public Font(String name, String familyName) {
@@ -165,12 +182,19 @@ public class Font {
      * @return 字体文件名称
      */
     public String getFontFileName() {
-        return fontFile.getFileName().toString();
+        if (fontFile != null) {
+            return fontFile.getFileName().toString();
+        }
+        return fontFileName;
     }
 
     public Font setFontFile(Path fontFile) {
         this.fontFile = fontFile;
         return this;
+    }
+
+    public byte[] getFontData() {
+        return fontData;
     }
 
     public boolean isItalic() {

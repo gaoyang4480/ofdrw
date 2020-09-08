@@ -662,6 +662,31 @@ public class DrawContext implements Closeable {
         return this;
     }
 
+    public DrawContext drawImage(String imageName,
+                                 byte[] imageData,
+                                 double x, double y,
+                                 double width, double height) throws IOException {
+        if (imageData == null || imageName == null || imageName.isEmpty()) {
+            throw new IOException("图片数据或名称为空");
+        }
+
+        ST_ID id = resManager.addImage(imageName, imageData);
+        // 在公共资源中加入图片
+        ImageObject imgObj = new ImageObject(maxUnitID.incrementAndGet());
+        imgObj.setResourceID(id.ref());
+        imgObj.setBoundary(boundary.clone());
+        ST_Array ctm = this.state.ctm == null ? ST_Array.unitCTM() : this.state.ctm;
+        ctm = new ST_Array(width, 0, 0, height, 0, 0).mtxMul(ctm);
+        imgObj.setCTM(ctm);
+
+        // 透明度
+        if (this.state.globalAlpha != null) {
+            imgObj.setAlpha((int) (255 * this.state.globalAlpha));
+        }
+        container.addPageBlock(imgObj);
+
+        return this;
+    }
 
     /**
      * 保存当前绘图状态
@@ -1054,13 +1079,6 @@ public class DrawContext implements Closeable {
             ColorClusterType tmpColorClusterType = ColorClusterType.getInstance(colorClusterType);
             tmpColorClusterType.setParent(null);
             this.workPathObj.setFillColor(new CT_Color(tmpColorClusterType));
-
-//            CT_Color fillColor = this.workPathObj.getFillColor();
-//            if (fillColor != null) {
-//                fillColor.setColor(tmpColorClusterType);
-//            } else {
-//                this.workPathObj.setFillColor(new CT_Color(tmpColorClusterType));
-//            }
         }
         return this;
     }

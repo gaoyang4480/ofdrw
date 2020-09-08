@@ -114,6 +114,24 @@ public class VPageParseEngine {
         }
     }
 
+    public void process(VirtualPage virtualPage, int pageNum) throws FileNotFoundException {
+        if (virtualPage instanceof AdditionVPage) {
+            // 执行页面编辑
+            pageEdit((AdditionVPage) virtualPage);
+        } else {
+            // 创建一个全新的页面容器对象
+            PageDir pageDir = getPage(pageNum);
+            // 解析虚拟页面，并加入到容器中
+            convertPageContent(virtualPage, pageDir);
+        }
+    }
+
+    public void buildPages(int totalPageNum) {
+        for (int i = 0; i < totalPageNum; i++) {
+            PageDir pageDir = newPage();
+        }
+    }
+
     /**
      * 转化虚拟页面的内容为实际OFD元素
      *
@@ -141,7 +159,6 @@ public class VPageParseEngine {
         convert2Layer(layer, vPage.getContent());
     }
 
-
     /**
      * 编辑指定的页面
      *
@@ -153,7 +170,6 @@ public class VPageParseEngine {
         // 像图层中些转化的元素对象
         convert2Layer(layer, content);
     }
-
 
     /**
      * 将虚拟页面中的元素转为OFD元素加入图层中
@@ -191,7 +207,7 @@ public class VPageParseEngine {
      *
      * @return 页面容器
      */
-    private PageDir newPage() {
+    private synchronized PageDir newPage() {
         // 设置页面index与页面定位路径一致
         PageDir pageDir = pagesDir.newPageDir();
         String pageLoc = String.format("Pages/Page_%d/Content.xml", pageDir.getIndex());
@@ -199,5 +215,8 @@ public class VPageParseEngine {
         return pageDir;
     }
 
+    private synchronized PageDir getPage(int pageNum) throws FileNotFoundException {
+        return pagesDir.getByIndex(pageNum);
+    }
 
 }

@@ -427,19 +427,19 @@ public class ResourceLocator {
             if (item.equals("/")) {
                 continue;
             } else if (item.startsWith("Doc_")) {
-                vc = vc.getContainer(item, DocDir::new);
+                vc = vc.getContainerByContainerArgs(item, DocDir::new);
             } else if (item.equals("Signs")) {
-                vc = vc.getContainer(item, SignsDir::new);
+                vc = vc.getContainerByContainerArgs(item, SignsDir::new);
             } else if (item.startsWith("Sign_")) {
-                vc = vc.getContainer(item, SignDir::new);
+                vc = vc.getContainerByContainerArgs(item, SignDir::new);
             } else if (item.equals("Pages")) {
-                vc = vc.getContainer(item, PagesDir::new);
+                vc = vc.getContainerByContainerArgs(item, PagesDir::new);
             } else if (item.startsWith("Page_")) {
-                vc = vc.getContainer(item, PageDir::new);
+                vc = vc.getContainerByContainerArgs(item, PageDir::new);
             } else if (item.equals("Res")) {
-                vc = vc.getContainer(item, ResDir::new);
+                vc = vc.getContainerByContainerArgs(item, ResDir::new);
             } else {
-                vc = vc.getContainer(item, VirtualContainer::new);
+                vc = vc.getContainerByContainerArgs(item, VirtualContainer::new);
             }
         }
         return vc;

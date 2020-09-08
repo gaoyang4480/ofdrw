@@ -5,6 +5,7 @@ import org.dom4j.Element;
 import org.ofdrw.core.annotation.pageannot.PageAnnot;
 import org.ofdrw.core.basicStructure.pageObj.Page;
 import org.ofdrw.core.basicStructure.res.Res;
+import org.ofdrw.pkg.enums.ContainerType;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -46,7 +47,6 @@ public class PageDir extends VirtualContainer {
      */
     private int index = 0;
 
-
     public PageDir(Path fullDir) throws IllegalArgumentException {
         super(fullDir);
         String indexStr = this.getContainerName().replace(PageContainerPrefix, "");
@@ -58,6 +58,18 @@ public class PageDir extends VirtualContainer {
         }
     }
 
+    public PageDir(ContainerArgs containerArgs) throws IllegalArgumentException {
+        super(containerArgs);
+        if (containerArgs.getContainerType() == ContainerType.FILE_SYSTEM) {
+            String indexStr = this.getContainerName().replace(PageContainerPrefix, "");
+            try {
+                this.index = Integer.parseInt(indexStr);
+            } catch (NumberFormatException e) {
+                clean();
+                throw new IllegalArgumentException("不合法的文件目录名称：" + this.getContainerName() + "，目录名称应为 Page_N");
+            }
+        }
+    }
 
     /**
      * 获取页面索引
@@ -122,7 +134,7 @@ public class PageDir extends VirtualContainer {
      * @return 资源目录容器
      */
     public ResDir obtainRes() {
-        return this.obtainContainer("Res", ResDir::new);
+        return this.obtainContainer("Res", containerType, zipContainer, ResDir::new);
     }
 
     /**
@@ -132,7 +144,7 @@ public class PageDir extends VirtualContainer {
      * @throws FileNotFoundException 该页面没有资源文件目录
      */
     public ResDir getResDir() throws FileNotFoundException {
-        return this.getContainer("Res", ResDir::new);
+        return this.getContainerByContainerArgs("Res", ResDir::new);
     }
 
     /**

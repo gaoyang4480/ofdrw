@@ -40,6 +40,7 @@ public class ResManager {
      * 自增的ID生成器
      */
     private AtomicInteger maxUnitID;
+
     /**
      * 文档容器
      */
@@ -70,7 +71,6 @@ public class ResManager {
     private ResManager() {
     }
 
-
     /**
      * 创建资源管理
      *
@@ -94,16 +94,18 @@ public class ResManager {
         try {
             // 初始化字体缓存
             Res docRes = docDir.getPublicRes();
-            for (Fonts f : docRes.getFonts()) {
-                f.getFonts().forEach(item -> {
-                    String completeFontName = item.getFontName();
-                    String familyName = item.getFamilyName();
-                    if (familyName != null && familyName.length() > 0) {
-                        completeFontName += "-" + familyName;
-                    }
-                    // 加入缓存防止重复加入
-                    cache.put(completeFontName, item);
-                });
+            if (docRes != null) {
+                for (Fonts f : docRes.getFonts()) {
+                    f.getFonts().forEach(item -> {
+                        String completeFontName = item.getFontName();
+                        String familyName = item.getFamilyName();
+                        if (familyName != null && familyName.length() > 0) {
+                            completeFontName += "-" + familyName;
+                        }
+                        // 加入缓存防止重复加入
+                        cache.put(completeFontName, item);
+                    });
+                }
             }
         } catch (FileNotFoundException e) {
             // 如果抛出异常说明资源不存在
@@ -140,10 +142,7 @@ public class ResManager {
                     .setFontName(font.getName())
                     .setFamilyName(familyName)
                     .setID(id);
-            Path fontFile = font.getFontFile();
-            if (fontFile != null) {
-                ctFont.setFontFile(font.getFontFileName());
-            }
+            ctFont.setFontFile(font.getFontFileName());
             if (font.getCharSet() != null && !font.getCharSet().equals("")) {
                 ctFont.setCharset(Charset.getInstance(font.getCharSet()));
             }
@@ -176,9 +175,13 @@ public class ResManager {
 //                        break;
 //                }
 //            }
+            Path fontFile = font.getFontFile();
             if (fontFile != null) {
                 // 将字体文件加入到文档容器中
                 docDir.addResource(fontFile);
+            } else if (font.getFontData() != null) {
+                // 将字体文件加入到文档容器中
+                docDir.addResource(font.getFontFileName(), font.getFontData());
             }
             // 把字体加入到字体清单中
             fonts.addFont(ctFont);
@@ -229,6 +232,36 @@ public class ResManager {
         } else {
             // 该资源已经加入过返回资源的ID
             return cache.get(absPath).getObjID();
+        }
+    }
+
+    public ST_ID addImage(String imageName, byte[] imgData) throws IOException {
+        Res resMenu = docRes();
+        if (cache.get(imageName) == null) {
+            if (medias == null) {
+                this.medias = new MultiMedias();
+                resMenu.addResource(medias);
+            }
+            // 生成加入资源的ID
+            ST_ID id = new ST_ID(maxUnitID.incrementAndGet());
+            // 获取图片文件后缀名称
+            String fileSuffix = pictureFormat(imageName);
+            // 将文件加入资源容器中
+            docDir.addResource(imageName, imgData);
+            // 创建图片对象
+            CT_MultiMedia multiMedia = new CT_MultiMedia()
+                    .setType(MediaType.Image)
+                    .setFormat(fileSuffix)
+                    .setMediaFile(ST_Loc.getInstance(imageName))
+                    .setID(id);
+            // 加入媒体类型清单
+            medias.addMultiMedia(multiMedia);
+            // 加入缓存
+            cache.put(imageName, multiMedia);
+            return id;
+        } else {
+            // 该资源已经加入过返回资源的ID
+            return cache.get(imageName).getObjID();
         }
     }
 

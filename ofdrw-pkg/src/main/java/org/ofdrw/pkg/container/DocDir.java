@@ -5,6 +5,7 @@ import org.dom4j.Element;
 import org.ofdrw.core.annotation.Annotations;
 import org.ofdrw.core.basicStructure.doc.Document;
 import org.ofdrw.core.basicStructure.res.Res;
+import org.ofdrw.pkg.enums.ContainerType;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -53,7 +54,6 @@ public class DocDir extends VirtualContainer {
      */
     private int index = 0;
 
-
     public DocDir(Path fullDir) throws IllegalArgumentException {
         super(fullDir);
         // 标准的签名目录名为 Sign_N (N代表第几个签名)
@@ -64,6 +64,21 @@ public class DocDir extends VirtualContainer {
         } catch (NumberFormatException e) {
             clean();
             throw new IllegalArgumentException("不合法的文件目录名称：" + this.getContainerName() + "，目录名称应为 Doc_N");
+        }
+    }
+
+    public DocDir(ContainerArgs containerArgs) throws IllegalArgumentException {
+        super(containerArgs);
+        if (containerArgs.getContainerType() == ContainerType.FILE_SYSTEM) {
+            // 标准的签名目录名为 Sign_N (N代表第几个签名)
+            String indexStr = this.getContainerName()
+                    .replace(DocContainerPrefix, "");
+            try {
+                index = Integer.parseInt(indexStr);
+            } catch (NumberFormatException e) {
+                clean();
+                throw new IllegalArgumentException("不合法的文件目录名称：" + this.getContainerName() + "，目录名称应为 Doc_N");
+            }
         }
     }
 
@@ -137,6 +152,7 @@ public class DocDir extends VirtualContainer {
 
     /**
      * 获取注释列表对象
+     *
      * @return 注释列表对象
      * @throws FileNotFoundException 文档自身资源索引文件不存在
      * @throws DocumentException     文档自身资源索引文件解析异常
@@ -174,7 +190,7 @@ public class DocDir extends VirtualContainer {
      * @throws FileNotFoundException 资源容器不存在
      */
     public ResDir getRes() throws FileNotFoundException {
-        return this.getContainer("Res", ResDir::new);
+        return this.getContainerByContainerArgs("Res", ResDir::new);
     }
 
 
@@ -186,7 +202,7 @@ public class DocDir extends VirtualContainer {
      * @return this
      */
     public ResDir obtainRes() {
-        return this.obtainContainer("Res", ResDir::new);
+        return this.obtainContainer("Res", containerType, zipContainer, ResDir::new);
     }
 
     /**
@@ -196,7 +212,7 @@ public class DocDir extends VirtualContainer {
      * @throws FileNotFoundException 数字签名存储目录不存在
      */
     public SignsDir getSigns() throws FileNotFoundException {
-        return this.getContainer("Signs", SignsDir::new);
+        return this.getContainerByContainerArgs("Signs", SignsDir::new);
     }
 
     /**
@@ -207,7 +223,7 @@ public class DocDir extends VirtualContainer {
      * @return 数字签名存储目录
      */
     public SignsDir obtainSigns() {
-        return this.obtainContainer("Signs", SignsDir::new);
+        return this.obtainContainer("Signs", containerType, zipContainer, SignsDir::new);
     }
 
     /**
@@ -217,7 +233,7 @@ public class DocDir extends VirtualContainer {
      * @throws FileNotFoundException 页面存储目录不存在
      */
     public PagesDir getPages() throws FileNotFoundException {
-        return this.getContainer("Pages", PagesDir::new);
+        return this.getContainerByContainerArgs("Pages", PagesDir::new);
     }
 
     /**
@@ -228,9 +244,8 @@ public class DocDir extends VirtualContainer {
      * @return 页面存储目录
      */
     public PagesDir obtainPages() {
-        return this.obtainContainer("Pages", PagesDir::new);
+        return this.obtainContainer("Pages", containerType, zipContainer, PagesDir::new);
     }
-
 
     /**
      * 增加资源
@@ -241,6 +256,19 @@ public class DocDir extends VirtualContainer {
      */
     public DocDir addResource(Path resource) throws IOException {
         obtainRes().add(resource);
+        return this;
+    }
+
+    /**
+     * 增加资源
+     *
+     * @param resourceFileName 资源文件名
+     * @param resourceData     资源数据
+     * @return this
+     * @throws IOException 文件复制过程中IO异常
+     */
+    public DocDir addResource(String resourceFileName, byte[] resourceData) throws IOException {
+        obtainRes().add(resourceFileName, resourceData);
         return this;
     }
 

@@ -36,17 +36,27 @@ public class ImgRender {
             return;
         }
         // 图片存储路径
-        Path p = e.getSrc();
-        if (p == null || Files.notExists(p)) {
-            throw new IllegalArgumentException("图片对象(Img)路径非法");
-        }
-        // 加入图片资源
         ST_ID id = null;
-        try {
-            id = resManager.addImage(p);
-        } catch (IOException ex) {
-            throw new RenderException("渲染图片复制失败：" + ex.getMessage(), ex);
+        byte[] imageData = e.getImageData();
+        Path p = e.getSrc();
+        if (p != null) {
+            if (Files.notExists(p)) {
+                throw new IllegalArgumentException("图片对象(Img)路径非法");
+            }
+            // 加入图片资源
+            try {
+                id = resManager.addImage(p);
+            } catch (IOException ex) {
+                throw new RenderException("渲染图片复制失败：" + ex.getMessage(), ex);
+            }
+        } else if (imageData != null) {
+            try {
+                id = resManager.addImage(e.getImageName(), imageData);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
+
         // 在公共资源中加入图片
         ImageObject imgObj = new ImageObject(maxUnitID.incrementAndGet());
         imgObj.setResourceID(id.ref());
