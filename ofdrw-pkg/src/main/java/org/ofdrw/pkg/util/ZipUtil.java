@@ -4,9 +4,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import com.sun.org.apache.xml.internal.security.encryption.EncryptionMethod;
-import net.lingala.zip4j.io.ZipOutputStream;
-import net.lingala.zip4j.util.Zip4jConstants;
+import net.lingala.zip4j.io.outputstream.ZipOutputStream;
+import net.lingala.zip4j.model.enums.CompressionLevel;
+import net.lingala.zip4j.model.enums.CompressionMethod;
+import net.lingala.zip4j.model.enums.EncryptionMethod;
 import org.apache.commons.lang3.StringUtils;
 
 import net.lingala.zip4j.exception.ZipException;
@@ -38,22 +39,23 @@ public class ZipUtil extends CompressUtil {
         }
 
         ZipParameters zipParameters = new ZipParameters();
-        zipParameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE); // 压缩方式
-        zipParameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_NORMAL); // 压缩级别
+        zipParameters.setCompressionMethod(CompressionMethod.DEFLATE); // 压缩方式
+        zipParameters.setCompressionLevel(CompressionLevel.NORMAL); // 压缩级别
 
+        fileName = fileName.replace("\\", "/");
         zipParameters.setFileNameInZip(fileName);
 
         if (StringUtils.isNotBlank(password)) {
             zipParameters.setEncryptFiles(true);
-            zipParameters.setEncryptionMethod(Zip4jConstants.ENC_METHOD_STANDARD);
-            zipParameters.setPassword(password.toCharArray());
+            zipParameters.setEncryptionMethod(EncryptionMethod.ZIP_STANDARD);
+            //zipParameters.setPassword(password.toCharArray());
         }
 
         // 源文件是否为外部流，true表示使用内存文件而非本地存储文件
-        zipParameters.setSourceExternalStream(true);
+        //zipParameters.setSourceExternalStream(true);
 
-        zipOutputStream.putNextEntry(null, zipParameters);
-        zipOutputStream.write(data);
+        zipOutputStream.putNextEntry(zipParameters);
+        zipOutputStream.write(data, 0, data.length);
         zipOutputStream.closeEntry();
     }
 
@@ -83,7 +85,7 @@ public class ZipUtil extends CompressUtil {
             throw new ZipException(new StringBuilder("参数异常,zipParameters=").append(zipParameters).append(",data=")
                     .append(data).append(",zipOutputStream=").append(zipOutputStream).toString());
         }
-        zipOutputStream.putNextEntry(null, zipParameters);
+        zipOutputStream.putNextEntry(zipParameters);
         zipOutputStream.write(data);
         zipOutputStream.closeEntry();
     }

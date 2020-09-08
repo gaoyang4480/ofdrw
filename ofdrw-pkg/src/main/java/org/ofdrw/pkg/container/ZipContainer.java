@@ -1,7 +1,7 @@
 package org.ofdrw.pkg.container;
 
 import net.lingala.zip4j.exception.ZipException;
-import net.lingala.zip4j.io.ZipOutputStream;
+import net.lingala.zip4j.io.outputstream.ZipOutputStream;
 import org.ofdrw.pkg.util.ZipUtil;
 
 import java.io.ByteArrayOutputStream;

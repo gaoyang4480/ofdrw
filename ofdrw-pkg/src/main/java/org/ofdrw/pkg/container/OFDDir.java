@@ -1,7 +1,6 @@
 package org.ofdrw.pkg.container;
 
-//import net.lingala.zip4j.ZipFile;
-
+import net.lingala.zip4j.ZipFile;
 import org.apache.commons.io.FileUtils;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -218,18 +217,18 @@ public class OFDDir extends VirtualContainer {
      * @throws IOException IO异常
      */
     private void zip(String workDirPath, String fullOfFilePath) throws IOException {
-//        ZipFile ofdFile = new ZipFile(fullOfFilePath);
-//        final File[] files = new File(workDirPath).listFiles();
-//        if (files == null) {
-//            throw new RuntimeException("目录中没有任何文件无法打包");
-//        }
-//        for (File f : files) {
-//            if (f.isDirectory()) {
-//                ofdFile.addFolder(f);
-//            } else {
-//                ofdFile.addFile(f);
-//            }
-//        }
+        ZipFile ofdFile = new ZipFile(fullOfFilePath);
+        final File[] files = new File(workDirPath).listFiles();
+        if (files == null) {
+            throw new RuntimeException("目录中没有任何文件无法打包");
+        }
+        for (File f : files) {
+            if (f.isDirectory()) {
+                ofdFile.addFolder(f);
+            } else {
+                ofdFile.addFile(f);
+            }
+        }
     }
 
 }

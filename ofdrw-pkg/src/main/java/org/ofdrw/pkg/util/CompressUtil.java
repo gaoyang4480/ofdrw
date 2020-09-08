@@ -6,14 +6,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-//import net.lingala.zip4j.model.enums.CompressionLevel;
-//import net.lingala.zip4j.model.enums.CompressionMethod;
-//import net.lingala.zip4j.model.enums.EncryptionMethod;
-import net.lingala.zip4j.core.ZipFile;
-import net.lingala.zip4j.util.Zip4jConstants;
+import net.lingala.zip4j.model.enums.CompressionLevel;
+import net.lingala.zip4j.model.enums.CompressionMethod;
+import net.lingala.zip4j.model.enums.EncryptionMethod;
 import org.apache.commons.lang3.StringUtils;
 
-//import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.FileHeader;
 import net.lingala.zip4j.model.ZipParameters;
@@ -71,7 +69,7 @@ public class CompressUtil {
      */
     public static File[] unzip(File zipFile, String dest, String passwd) throws ZipException {
         ZipFile zFile = new ZipFile(zipFile);
-        zFile.setFileNameCharset("GBK");
+        zFile.setCharset(Charset.defaultCharset());
         if (!zFile.isValidZipFile()) {
             throw new ZipException("压缩文件不合法,可能被损坏.");
         }
@@ -147,12 +145,12 @@ public class CompressUtil {
         File srcFile = new File(src);
         dest = buildDestinationZipFilePath(srcFile, dest);
         ZipParameters parameters = new ZipParameters();
-        parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE); // 压缩方式
-        parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_NORMAL); // 压缩级别
+        parameters.setCompressionMethod(CompressionMethod.DEFLATE); // 压缩方式
+        parameters.setCompressionLevel(CompressionLevel.NORMAL); // 压缩级别
         if (!StringUtils.isEmpty(passwd)) {
             parameters.setEncryptFiles(true);
-            parameters.setEncryptionMethod(Zip4jConstants.ENC_METHOD_STANDARD); // 加密方式
-            parameters.setPassword(passwd.toCharArray());
+            parameters.setEncryptionMethod(EncryptionMethod.ZIP_STANDARD); // 加密方式
+            //parameters.setPassword(passwd.toCharArray());
         }
         try {
             ZipFile zipFile = new ZipFile(dest);
