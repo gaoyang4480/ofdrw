@@ -49,25 +49,21 @@ public class PageDir extends VirtualContainer {
 
     public PageDir(Path fullDir) throws IllegalArgumentException {
         super(fullDir);
+        obtainIndex();
+    }
+
+    public PageDir(ContainerArgs containerArgs) throws IllegalArgumentException {
+        super(containerArgs);
+        obtainIndex();
+    }
+
+    private void obtainIndex() {
         String indexStr = this.getContainerName().replace(PageContainerPrefix, "");
         try {
             this.index = Integer.parseInt(indexStr);
         } catch (NumberFormatException e) {
             clean();
             throw new IllegalArgumentException("不合法的文件目录名称：" + this.getContainerName() + "，目录名称应为 Page_N");
-        }
-    }
-
-    public PageDir(ContainerArgs containerArgs) throws IllegalArgumentException {
-        super(containerArgs);
-        if (containerArgs.getContainerType() == ContainerType.FILE_SYSTEM) {
-            String indexStr = this.getContainerName().replace(PageContainerPrefix, "");
-            try {
-                this.index = Integer.parseInt(indexStr);
-            } catch (NumberFormatException e) {
-                clean();
-                throw new IllegalArgumentException("不合法的文件目录名称：" + this.getContainerName() + "，目录名称应为 Page_N");
-            }
         }
     }
 

@@ -7,6 +7,7 @@ import org.ofdrw.font.FontName;
 import org.ofdrw.layout.OFDDoc;
 import org.ofdrw.layout.VirtualPage;
 import org.ofdrw.layout.element.Position;
+import org.ofdrw.pkg.enums.ContainerType;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -21,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * @since 2020-05-02 18:25:25
  */
 class DrawContextTest {
-
 
     @Test
     void stroke() throws IOException {
@@ -45,6 +45,46 @@ class DrawContextTest {
             vPage.add(canvas);
 
             ofdDoc.addVPage(vPage);
+        }
+        System.out.println("生成文档位置：" + outP.toAbsolutePath().toString());
+    }
+
+    @Test
+    void stroke2() throws IOException {
+        Path outP = Paths.get("target/CanvasLineCreate.ofd");
+        try (OFDDoc ofdDoc = new OFDDoc(outP, ContainerType.ZIP_MEMORY_FILE)) {
+            for (int i = 0; i < 2; i++) {
+                VirtualPage vPage = new VirtualPage(ofdDoc.getPageLayout());
+
+                Canvas canvas = new Canvas(200d, 200d);
+                canvas.setPosition(Position.Absolute)
+                        .setX(5d).setY(45d)
+                        .setBorder(1d);
+
+                if (i == 0) {
+                    canvas.setDrawer(ctx -> {
+                        ctx.setStrokeColor(255, 0, 0);
+                        ctx.beginPath()
+                                .moveTo(20, 20)
+                                .lineTo(20, 100)
+                                .lineTo(70, 100)
+                                .stroke();
+                    });
+                } else if (i == 1) {
+                    canvas.setDrawer(ctx -> {
+                        ctx.setStrokeColor(0, 255, 0);
+                        ctx.beginPath()
+                                .moveTo(20, 20)
+                                .lineTo(20, 100)
+                                .lineTo(70, 100)
+                                .stroke();
+                    });
+                }
+
+                vPage.add(canvas);
+
+                ofdDoc.addVPage(vPage);
+            }
         }
         System.out.println("生成文档位置：" + outP.toAbsolutePath().toString());
     }
@@ -520,7 +560,7 @@ class DrawContextTest {
                     .setBorder(1d);
 
             canvas.setDrawer(ctx -> {
-                FontSetting fontSetting = new FontSetting(5,FontName.SimSun.font())
+                FontSetting fontSetting = new FontSetting(5, FontName.SimSun.font())
                         .setCharDirection(180)
                         .setReadDirection(90);
                 ctx.setFont(fontSetting);
