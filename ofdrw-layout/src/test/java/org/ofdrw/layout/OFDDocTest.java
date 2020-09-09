@@ -21,9 +21,13 @@ import org.ofdrw.layout.element.canvas.Canvas;
 import org.ofdrw.pkg.container.DocDir;
 import org.ofdrw.pkg.container.OFDDir;
 import org.ofdrw.pkg.container.PageDir;
+import org.ofdrw.pkg.enums.ContainerType;
 import org.ofdrw.reader.OFDReader;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -57,7 +61,36 @@ class OFDDocTest {
 
             // 加入附件文件
             ofdDoc.addAttachment(new Attachment("Gao", file));
-            ofdDoc.addAttachment(new Attachment("FontFile", file2));
+            //ofdDoc.addAttachment(new Attachment("FontFile", file2));
+        }
+        System.out.println("生成文档位置：" + outP.toAbsolutePath().toString());
+    }
+
+    @Test
+    void addAttachment2() throws IOException {
+        Path outP = Paths.get("target/AddAttachment.ofd");
+        Path file = Paths.get("src/test/resources", "eg_tulip.jpg");
+        Path file2 = Paths.get("src/test/resources", "NotoSerifCJKsc-Regular.otf");
+
+        try (OFDDoc ofdDoc = new OFDDoc(outP, ContainerType.ZIP_MEMORY_FILE)) {
+            Paragraph p = new Paragraph();
+            Span span = new Span("这是一个带有附件的OFD文件").setFontSize(10d);
+            p.add(span);
+            ofdDoc.add(p);
+
+            // 加入附件文件
+            ByteArrayOutputStream byteArrayOutputStream = new
+                    ByteArrayOutputStream();
+            InputStream inputStream = new FileInputStream(file.toAbsolutePath().toString());
+            byte[] readBuff = new byte[4096];
+            int readLen = -1;
+            while ((readLen = inputStream.read(readBuff)) != -1) {
+                byteArrayOutputStream.write(readBuff, 0, readLen);
+            }
+            inputStream.close();
+            byteArrayOutputStream.close();
+            readBuff = byteArrayOutputStream.toByteArray();
+            ofdDoc.addAttachment(new Attachment("Gao", "eg_tulip.jpg", readBuff));
         }
         System.out.println("生成文档位置：" + outP.toAbsolutePath().toString());
     }
@@ -100,11 +133,9 @@ class OFDDocTest {
                 ctx.drawImage(imgPath, 0, 0, 40d, 40d);
             });
             ofdDoc.addAnnotation(1, annotation);
-
         }
         System.out.println("生成文档位置：" + outP.toAbsolutePath().toString());
     }
-
 
     /**
      * 加入水印类型注释对象

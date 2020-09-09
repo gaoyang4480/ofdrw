@@ -66,6 +66,10 @@ public class OFDDoc implements Closeable {
      */
     protected Path outPath;
     /**
+     * 容器类型
+     */
+    protected ContainerType containerType;
+    /**
      * 当前文档中所有对象使用标识的最大值。
      * 初始值为 0。MaxUnitID主要用于文档编辑，
      * 在向文档增加一个新对象时，需要分配一个
@@ -198,6 +202,7 @@ public class OFDDoc implements Closeable {
      * 初始化OFD虚拟容器
      */
     private void containerInit(boolean isSetDocInfo, ContainerType containerType) {
+        this.containerType = containerType;
         DocBody docBody = new DocBody()
                 .setDocRoot(new ST_Loc("Doc_0/Document.xml"));
         if (isSetDocInfo) {
@@ -354,17 +359,31 @@ public class OFDDoc implements Closeable {
         }
         DocDir docDefault = ofdDir.obtainDocDefault();
         Path file = attachment.getFile();
-        docDefault.addResource(file);
+        String filename = "";
+        double size = 0;
+        if (file != null) {
+            docDefault.addResource(file);
+            filename = file.getFileName().toString();
+            // 计算附件所占用的空间，单位KB。
+            size = Files.size(file) / 1024d;
+        } else {
+            byte[] fileData = attachment.getAtmData();
+            if (fileData != null) {
+                filename = attachment.getAtmFileName();
+                docDefault.addResource(filename, fileData);
+                size = fileData.length / 1024d;
+            }
+        }
         // 构造附件文件存放路径
         ST_Loc loc = docDefault.getRes().getAbsLoc()
-                .cat(file.getFileName().toString());
-        // 计算附件所占用的空间，单位KB。
-        double size = Files.size(file) / 1024d;
+                .cat(filename);
         CT_Attachment ctAttachment = attachment.getAttachment()
                 .setID(String.valueOf(MaxUnitID.incrementAndGet()))
-                .setCreationDate(LocalDate.now())
                 .setSize(size)
                 .setFileLoc(loc);
+        if (ctAttachment.getCreationDate() == null) {
+            ctAttachment.setCreationDate(LocalDate.now());
+        }
         ResourceLocator rl = new ResourceLocator(ofdDir);
         // 获取附件目录，并切换目录到与附件列表文件同级
         Attachments attachments = obtainAttachments(docDefault, rl);

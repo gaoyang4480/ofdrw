@@ -22,6 +22,16 @@ public class Attachment {
     private Path file;
 
     /**
+     * 附件文件名
+     */
+    private String atmFileName;
+
+    /**
+     * 附件文件数据
+     */
+    private byte[] atmData;
+
+    /**
      * 附件对象
      */
     private CT_Attachment atmObj;
@@ -45,6 +55,38 @@ public class Attachment {
         this.file = file;
         this.atmObj = new CT_Attachment();
         this.setName(name);
+    }
+
+    public Attachment(String attachmentName, String attachmentFileName, byte[] attachmentFileData) {
+        if (attachmentFileData == null) {
+            throw new IllegalArgumentException("附件文件数据为空");
+        }
+        if (attachmentName == null || attachmentName.trim().isEmpty()) {
+            throw new IllegalArgumentException("附件名称不能为空");
+        }
+        if (attachmentFileName == null || attachmentFileName.trim().isEmpty()) {
+            throw new IllegalArgumentException("附件文件名称不能为空");
+        }
+        this.atmFileName = attachmentFileName;
+        this.atmData = attachmentFileData;
+        this.atmObj = new CT_Attachment();
+        this.setName(attachmentName);
+    }
+
+    public String getAtmFileName() {
+        return atmFileName;
+    }
+
+    public void setAtmFileName(String atmFileName) {
+        this.atmFileName = atmFileName;
+    }
+
+    public byte[] getAtmData() {
+        return atmData;
+    }
+
+    public void setAtmData(byte[] atmData) {
+        this.atmData = atmData;
     }
 
     /**
@@ -207,7 +249,7 @@ public class Attachment {
         return this;
     }
 
-    public CT_Attachment getAttachment(){
+    public CT_Attachment getAttachment() {
         return atmObj;
     }
 }

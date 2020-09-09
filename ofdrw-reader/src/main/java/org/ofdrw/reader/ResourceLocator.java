@@ -4,6 +4,7 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.ofdrw.core.basicType.ST_Loc;
 import org.ofdrw.pkg.container.*;
+import org.ofdrw.pkg.enums.ContainerType;
 
 import java.io.FileNotFoundException;
 import java.nio.file.Files;
@@ -217,7 +218,24 @@ public class ResourceLocator {
         String absPath = toAbsolutePath(path);
         String ofwTmp = ofdDir.getSysAbsPath();
         Path sysPath = Paths.get(ofwTmp + absPath);
-        if (Files.exists(sysPath) && Files.isDirectory(sysPath)) {
+        ContainerType containerType = this.ofdDir.getContainerType();
+        if (containerType == ContainerType.FILE_SYSTEM) {
+            if (Files.exists(sysPath) && Files.isDirectory(sysPath)) {
+                // 刷新工作区到指定区域
+                workDir.clear();
+                workDir.add("/");
+                for (String item : absPath.split("/")) {
+                    item = item.trim();
+                    if (item.isEmpty()) {
+                        continue;
+                    }
+                    workDir.add(item);
+                }
+            } else {
+                // 如果路径不存在，那么报错
+                throw new ErrorPathException("无法切换路径到" + path + "，目录不存在。");
+            }
+        } else if (containerType == ContainerType.ZIP_MEMORY_FILE) {
             // 刷新工作区到指定区域
             workDir.clear();
             workDir.add("/");
@@ -228,9 +246,6 @@ public class ResourceLocator {
                 }
                 workDir.add(item);
             }
-        } else {
-            // 如果路径不存在，那么报错
-            throw new ErrorPathException("无法切换路径到" + path + "，目录不存在。");
         }
         return this;
     }

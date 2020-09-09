@@ -16,6 +16,7 @@ import org.ofdrw.layout.engine.ResManager;
 import org.ofdrw.layout.engine.render.RenderException;
 import org.ofdrw.pkg.container.DocDir;
 import org.ofdrw.pkg.container.PageDir;
+import org.ofdrw.pkg.enums.ContainerType;
 import org.ofdrw.reader.BadOFDException;
 import org.ofdrw.reader.PageInfo;
 import org.ofdrw.reader.ResourceLocator;

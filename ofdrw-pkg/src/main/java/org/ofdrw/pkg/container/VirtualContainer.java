@@ -68,6 +68,10 @@ public class VirtualContainer implements Closeable {
         return name;
     }
 
+    public ContainerType getContainerType() {
+        return containerType;
+    }
+
     private VirtualContainer() {
         fileCache = new HashMap<>(7);
         dirCache = new HashMap<>(5);
@@ -114,6 +118,7 @@ public class VirtualContainer implements Closeable {
         } else if (containerType == ContainerType.ZIP_MEMORY_FILE) {
             if (fullDir != null) {
                 this.fullPath = fullDir.toString();
+                this.name = fullDir.getFileName().toString();
             }
             if (zipContainer != null) {
                 this.zipContainer = zipContainer;
