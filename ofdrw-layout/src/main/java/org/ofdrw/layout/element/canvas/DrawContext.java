@@ -653,6 +653,13 @@ public class DrawContext implements Closeable {
         ctm = new ST_Array(width, 0, 0, height, x, y).mtxMul(ctm);
         imgObj.setCTM(ctm);
 
+        // 裁剪区域
+        if (this.state.clipFactory != null) {
+            imgObj.setClips(state.clipFactory.clips());
+            pathData = null;
+            workPathObj = null;
+        }
+
         // 透明度
         if (this.state.globalAlpha != null) {
             imgObj.setAlpha((int) (255 * this.state.globalAlpha));
@@ -679,11 +686,28 @@ public class DrawContext implements Closeable {
         ctm = new ST_Array(width, 0, 0, height, 0, 0).mtxMul(ctm);
         imgObj.setCTM(ctm);
 
+        // 裁剪区域
+        if (this.state.clipFactory != null) {
+            state.clipFactory.setFill(true);
+            state.clipFactory.setStroke(false);
+            imgObj.setClips(state.clipFactory.clips());
+            pathData = null;
+            workPathObj = null;
+        }
+
         // 透明度
         if (this.state.globalAlpha != null) {
             imgObj.setAlpha((int) (255 * this.state.globalAlpha));
         }
         container.addPageBlock(imgObj);
+
+        return this;
+    }
+
+    public DrawContext setClipPathBoundary(ST_Box boundary) {
+        if (this.state.clipFactory != null) {
+            this.state.clipFactory.setBoundary(boundary);
+        }
 
         return this;
     }
