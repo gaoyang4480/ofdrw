@@ -76,6 +76,7 @@ public class ElemCup {
         doc.add(e);
         try (OutputStream out = Files.newOutputStream(to)) {
             XMLWriter writeToFile = new XMLWriter(out);
+            //writeToFile.setEscapeText(false);
             writeToFile.write(doc);
             writeToFile.close();
         }
@@ -93,6 +94,7 @@ public class ElemCup {
         doc.add(e);
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             XMLWriter writeToFile = new XMLWriter(out);
+            //writeToFile.setEscapeText(false);
             writeToFile.write(doc);
             writeToFile.close();
             return out.toByteArray();

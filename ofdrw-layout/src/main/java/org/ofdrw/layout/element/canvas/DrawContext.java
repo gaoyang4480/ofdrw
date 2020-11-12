@@ -683,7 +683,7 @@ public class DrawContext implements Closeable {
         imgObj.setResourceID(id.ref());
         imgObj.setBoundary(boundary.clone());
         ST_Array ctm = this.state.ctm == null ? ST_Array.unitCTM() : this.state.ctm;
-        ctm = new ST_Array(width, 0, 0, height, 0, 0).mtxMul(ctm);
+        //ctm = new ST_Array(width, 0, 0, height, 0, 0).mtxMul(ctm);
         imgObj.setCTM(ctm);
 
         // 裁剪区域
@@ -780,6 +780,8 @@ public class DrawContext implements Closeable {
         // 设置颜色
         if (state.fillColor != null) {
             txtObj.setFillColor(CT_Color.rgb(state.fillColor));
+        } else {
+            txtObj.setFill(false);
         }
         // 设置变换矩阵
         if (state.ctm != null) {
@@ -870,6 +872,8 @@ public class DrawContext implements Closeable {
             ColorClusterType tmpColorClusterType = ColorClusterType.getInstance(state.colorClusterType);
             tmpColorClusterType.setParent(null);
             txtObj.setFillColor(new CT_Color(tmpColorClusterType));
+        } else {
+            txtObj.setFill(false);
         }
         // 设置变换矩阵
         if (state.ctm != null) {

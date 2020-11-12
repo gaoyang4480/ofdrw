@@ -33,6 +33,11 @@ public class Img extends Div {
      */
     private byte[] imageData;
 
+    /**
+     * CTM
+     */
+    private double[] ctm;
+
 //    /**
 //     * 是否保持比例缩放
 //     * <p>
@@ -96,6 +101,14 @@ public class Img extends Div {
 
     public byte[] getImageData() {
         return imageData;
+    }
+
+    public double[] getCtm() {
+        return ctm;
+    }
+
+    public void setCtm(double[] ctm) {
+        this.ctm = ctm;
     }
 
 //    public boolean isFit() {

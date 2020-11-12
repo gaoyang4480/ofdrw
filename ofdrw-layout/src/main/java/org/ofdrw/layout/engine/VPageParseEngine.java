@@ -1,6 +1,7 @@
 package org.ofdrw.layout.engine;
 
 import org.dom4j.DocumentException;
+import org.ofdrw.core.basicStructure.doc.CT_PageArea;
 import org.ofdrw.core.basicStructure.pageObj.Content;
 import org.ofdrw.core.basicStructure.pageObj.layer.CT_Layer;
 import org.ofdrw.core.basicStructure.pageTree.Page;
@@ -146,6 +147,7 @@ public class VPageParseEngine {
             // 如果与默认页面样式不一致，那么需要单独设置页面样式
             page.setArea(vPageStyle.getPageArea());
         }
+        page.setArea(new CT_PageArea(0, 0, vPageStyle.getWidth(), vPageStyle.getHeight()));
         pageDir.setContent(page);
         if (vPage.getContent().isEmpty()) {
             return;

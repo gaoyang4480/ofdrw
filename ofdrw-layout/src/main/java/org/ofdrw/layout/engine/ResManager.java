@@ -313,6 +313,10 @@ public class ResManager {
         if (ctDrawParam1.getDashOffset() != null && ctDrawParam2.getDashOffset() != null) {
             ret &= ctDrawParam1.getDashOffset().equals(ctDrawParam2.getDashOffset());
         }
+        if ((ctDrawParam1.getDashPattern() != null && ctDrawParam2.getDashPattern() == null) ||
+                (ctDrawParam1.getDashPattern() == null && ctDrawParam2.getDashPattern() != null)) {
+            return false;
+        }
         if (ctDrawParam1.getDashPattern() != null && ctDrawParam2.getDashPattern() != null) {
             ret &= ctDrawParam1.getDashPattern().toString().equals(ctDrawParam2.getDashPattern().toString());
         }

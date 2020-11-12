@@ -48,6 +48,7 @@ public class TestTool {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
             XMLWriter writerToSout = new XMLWriter(out, FORMAT);
+            //writerToSout.setEscapeText(false);
             writerToSout.write(element);
             writerToSout.flush();
             return out.toByteArray();
@@ -71,10 +72,12 @@ public class TestTool {
 
             // 格式化打印到控制台
             XMLWriter writerToSout = new XMLWriter(System.out, FORMAT);
+            //writerToSout.setEscapeText(false);
             writerToSout.write(doc);
 
             // 打印打到文件
             XMLWriter writeToFile = new XMLWriter(out, FORMAT);
+            //writeToFile.setEscapeText(false);
             writeToFile.write(doc);
         } catch (IOException e) {
             throw new RuntimeException(e);
